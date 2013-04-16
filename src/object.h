@@ -396,7 +396,6 @@
 #define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
 /* xxx */
-
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -504,7 +503,6 @@
 #define SV_WAND_DRAGON_COLD		27
 #define SV_WAND_DRAGON_BREATH	28
 #define SV_WAND_WALL_BUILDING	29
-
 
 
 /* The "sval" codes for TV_ROD */
@@ -966,60 +964,58 @@
 
 
 
-#define TR3_SLOW_DIGEST     0x00000001L /* Slow digest */
-#define TR3_FEATHER         0x00000002L /* Feather Falling */
-#define TR3_LIGHT            0x00000004L /* Perma-Light */
-#define TR3_REGEN           0x00000008L /* Regeneration */
-#define TR3_TELEPATHY       0x00000010L /* Telepathy */
-#define TR3_SEE_INVIS       0x00000020L /* See Invis */
-#define TR3_FREE_ACT        0x00000040L /* Free action */
-#define TR3_HOLD_LIFE       0x00000080L /* Hold life */
-#define TR3_NEVER_PICKUP    0x00000100L /* monsters can't pickup*/
-#define TR3_IRONMAN_ONLY    0x00000200L	/* Ironman object */
-#define TR3_TR3XXX3         0x00000400L
-#define TR3_TR3XXX4         0x00000800L
-#define TR3_IMPACT          0x00001000L /* Earthquake blows */
-#define TR3_TELEPORT        0x00002000L /* Random teleportation */
-#define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
-#define TR3_DRAIN_EXP       0x00008000L /* Experience drain */
-#define TR3_IGNORE_ACID     0x00010000L /* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC     0x00020000L /* Item ignores Elec Damage */
-#define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
-#define TR3_THROWING        0x00100000L /* Can be thrown for additional damage */
+#define TR3_SLOW_DIGEST		0x00000001L /* Slow digest */
+#define TR3_FEATHER			0x00000002L /* Feather Falling */
+#define TR3_LIGHT			0x00000004L /* Perma-Light */
+#define TR3_REGEN			0x00000008L /* Regeneration */
+#define TR3_TELEPATHY		0x00000010L /* Telepathy */
+#define TR3_SEE_INVIS		0x00000020L /* See Invis */
+#define TR3_FREE_ACT		0x00000040L /* Free action */
+#define TR3_HOLD_LIFE		0x00000080L /* Hold life */
+#define TR3_NEVER_PICKUP	0x00000100L /* monsters can't pickup*/
+#define TR3_IRONMAN_ONLY	0x00000200L	/* Ironman object */
+#define TR3_TR3XXX3			0x00000400L
+#define TR3_TR3XXX4			0x00000800L
+#define TR3_IMPACT			0x00001000L /* Earthquake blows */
+#define TR3_TELEPORT		0x00002000L /* Random teleportation */
+#define TR3_AGGRAVATE		0x00004000L /* Aggravate monsters */
+#define TR3_DRAIN_EXP		0x00008000L /* Experience drain */
+#define TR3_IGNORE_ACID		0x00010000L /* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC		0x00020000L /* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE		0x00040000L /* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD		0x00080000L /* Item ignores Cold Damage */
+#define TR3_THROWING		0x00100000L /* Can be thrown for additional damage */
 #define TR3_PERFECT_BALANCE	0x00200000L /* item with perfect balance  */
-#define TR3_BLESSED         0x00400000L /* Item has been blessed */
-#define TR3_ACTIVATE        0x00800000L /* Item can be activated */
-#define TR3_INSTA_ART       0x01000000L /* Item makes an artifact */
-#define TR3_EASY_KNOW       0x02000000L /* Item is known if aware */
-#define TR3_HIDE_TYPE       0x04000000L /* Item hides description */
-#define TR3_SHOW_MODS       0x08000000L /* Item shows Tohit/Todam */
-#define TR3_TR3XXX7         0x10000000L /* (reserved) */
-#define TR3_LIGHT_CURSE     0x20000000L /* Item has Light Curse */
-#define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
-#define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
+#define TR3_BLESSED			0x00400000L /* Item has been blessed */
+#define TR3_ACTIVATE		0x00800000L /* Item can be activated */
+#define TR3_INSTA_ART		0x01000000L /* Item makes an artifact */
+#define TR3_EASY_KNOW		0x02000000L /* Item is known if aware */
+#define TR3_HIDE_TYPE		0x04000000L /* Item hides description */
+#define TR3_SHOW_MODS		0x08000000L /* Item shows Tohit/Todam */
+#define TR3_TR3XXX7			0x10000000L /* (reserved) */
+#define TR3_LIGHT_CURSE		0x20000000L /* Item has Light Curse */
+#define TR3_HEAVY_CURSE		0x40000000L /* Item has Heavy Curse */
+#define TR3_PERMA_CURSE		0x80000000L /* Item has Perma Curse */
 
 /*TR3 Uber-Flags*/
 #define TR3_IGNORE_ALL (TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | TR3_IGNORE_COLD)
 
 /* Native flags - extracted from feature flags */
-#define TN1_NATIVE_LAVA 	ELEMENT_LAVA
-#define TN1_NATIVE_ICE  	ELEMENT_ICE
-#define TN1_NATIVE_OIL   	ELEMENT_OIL
-#define TN1_NATIVE_FIRE   	ELEMENT_FIRE
-#define TN1_NATIVE_SAND 	ELEMENT_SAND
+#define TN1_NATIVE_LAVA		ELEMENT_LAVA
+#define TN1_NATIVE_ICE		ELEMENT_ICE
+#define TN1_NATIVE_OIL		ELEMENT_OIL
+#define TN1_NATIVE_FIRE		ELEMENT_FIRE
+#define TN1_NATIVE_SAND		ELEMENT_SAND
 #define TN1_NATIVE_FOREST	ELEMENT_FOREST
-#define TN1_NATIVE_WATER 	ELEMENT_WATER
-#define TN1_NATIVE_ACID   	ELEMENT_ACID
-#define TN1_NATIVE_MUD 		ELEMENT_MUD
-#define TN1_NATIVE_UNUSED 	0x0200
-
-
+#define TN1_NATIVE_WATER	ELEMENT_WATER
+#define TN1_NATIVE_ACID		ELEMENT_ACID
+#define TN1_NATIVE_MUD		ELEMENT_MUD
+#define TN1_NATIVE_UNUSED	0x0200
 
 
 /*
- * Hack -- flag set 1 -- mask for "pval-dependant" flags.
- * Note that all "pval" dependant flags must be in "flags1".
+ * Hack -- flag set 1 -- mask for "pval-dependent" flags.
+ * Note that all "pval" dependent flags must be in "flags1".
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
@@ -1032,7 +1028,7 @@
  */
 #define TR3_IGNORE_MASK \
 	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
-	 TR3_IGNORE_COLD )
+	 TR3_IGNORE_COLD)
 
 /*
  * Stat sustain flags
@@ -1042,17 +1038,13 @@
 
 #define TR2_STAT_MOD_MASK \
 	(TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS | TR2_SUST_DEX | \
-<<<<<<< HEAD
-	 TR2_SUST__CON | TR2_SUST_CHR)
-=======
 		  TR2_SUST_CON | TR2_SUST_CHR)
->>>>>>> 6b31a04f2c2e3a206a376431f8ff629a89971548
 
 #define TR3_STAT_MOD_MASK \
 	(0L)
 
 #define TN1_STAT_MOD_MASK \
-		(0L)
+	(0L)
 
 /*
  * Stat add flags
@@ -1067,7 +1059,7 @@
 	(0L)
 
 #define TN1_STAT_SUST_MASK \
-		(0L)
+	(0L)
 
 
 /*
@@ -1083,7 +1075,7 @@
 	(0L)
 
 #define TN1_IMMUNITIES_MASK \
-		(0L)
+	(0L)
 
 
 /*
@@ -1099,7 +1091,7 @@
 	(0L)
 
 #define TN1_LOW_RESIST_MASK \
-		(0L)
+	(0L)
 
 /*
  * Medium Resist flags

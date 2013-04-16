@@ -323,14 +323,14 @@
  * Percentage of maximum noise you can make just walking around, given a
  * stealth of zero.
  */
-#define WAKEUP_ADJ      20
+#define WAKEUP_ADJ		20
 
 
 /*
  * More maximum values
  */
-#define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	20	/* Maximum range (spells, etc) */
+#define MAX_SIGHT		20	/* Maximum view distance */
+#define MAX_RANGE		20	/* Maximum range (spells, etc) */
 
 
 /*
@@ -497,7 +497,7 @@
 #define LRN_CONFU_SAVE	49 /* Both resist Confusion and Saves apply */
 #define LRN_DARK_SAVE	50
 #define LRN_HOLY_SAVE	51
-#define LRN_LAVA  		62
+#define LRN_LAVA		62
 
 #define LRN_MAX			63
 
@@ -608,7 +608,7 @@ enum
  * An arc with a width (in degrees) less than this value will lose less
  * power over distance.
  */
-#define ARC_STANDARD_WIDTH     90
+#define ARC_STANDARD_WIDTH	90
 
 
 /*
@@ -672,7 +672,6 @@ enum
 
 #define THEMED_LEVEL_NO_QUEST_BOOST	7
 #define THEMED_LEVEL_QUEST_BOOST	10
-
 
 
 /*** Option Definitions ***/
@@ -760,8 +759,8 @@ enum
 #define OPT_view_bright_light		61
 #define OPT_view_granite_light		62
 #define OPT_view_special_light		63
-#define OPT_easy_open 				64
-#define OPT_easy_alter 				65
+#define OPT_easy_open				64
+#define OPT_easy_alter				65
 /* xxx */
 #define OPT_show_piles				67
 #define OPT_center_player			68
@@ -770,7 +769,7 @@ enum
 #define OPT_auto_more				71
 /* xxx */
 #define OPT_auto_display_lists		73
-#define OPT_hp_changes_color  		74
+#define OPT_hp_changes_color		74
 #define OPT_verify_leave_quest		75
 #define OPT_mark_squelch_items		76
 #define OPT_mouse_movement			77
@@ -806,7 +805,7 @@ enum
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
-/* xxx xxx */       				/*(OPT_ADULT+0)*/
+/* xxx xxx */						/*(OPT_ADULT+0)*/
 #define OPT_adult_no_selling		(OPT_ADULT+1)
 #define OPT_adult_maximize			(OPT_ADULT+2)
 #define OPT_adult_preserve			(OPT_ADULT+3)
@@ -981,7 +980,6 @@ enum
 #define OPT_PAGE_PER			20
 
 
-
 /*** Macro Definitions ***/
 
 
@@ -1130,37 +1128,37 @@ enum
 /*
  * Artifact activation index
  */
-#define ACT_ILLUMINATION        0
-#define ACT_MAGIC_MAP           1
-#define ACT_CLAIRVOYANCE        2
-#define ACT_PROT_EVIL           3
-#define ACT_DISP_EVIL           4
-#define ACT_HEAL1               5
-#define ACT_HEAL2               6
-#define ACT_CURE_WOUNDS         7
-#define ACT_HASTE1              8
-#define ACT_HASTE2              9
-#define ACT_FIRE1               10
-#define ACT_FIRE2               11
-#define ACT_FIRE3               12
-#define ACT_FROST1              13
-#define ACT_FROST2              14
-#define ACT_FROST3              15
-#define ACT_FROST4              16
-#define ACT_FROST5              17
-#define ACT_ACID1               18
-#define ACT_RECHARGE1           19
-#define ACT_SLEEP               20
-#define ACT_LIGHTNING_BOLT      21
-#define ACT_ELEC2               22
-#define ACT_BANISHMENT          23
-#define ACT_MASS_BANISHMENT     24
-#define ACT_IDENTIFY            25
-#define ACT_DRAIN_LIFE1         26
-#define ACT_DRAIN_LIFE2         27
-#define ACT_BIZZARE             28
-#define ACT_STAR_BALL           29
-#define ACT_RAGE_BLESS_RESIST   30
+#define ACT_ILLUMINATION		0
+#define ACT_MAGIC_MAP			1
+#define ACT_CLAIRVOYANCE		2
+#define ACT_PROT_EVIL			3
+#define ACT_DISP_EVIL			4
+#define ACT_HEAL1				5
+#define ACT_HEAL2				6
+#define ACT_CURE_WOUNDS			7
+#define ACT_HASTE1				8
+#define ACT_HASTE2				9
+#define ACT_FIRE1				10
+#define ACT_FIRE2				11
+#define ACT_FIRE3				12
+#define ACT_FROST1				13
+#define ACT_FROST2				14
+#define ACT_FROST3				15
+#define ACT_FROST4				16
+#define ACT_FROST5				17
+#define ACT_ACID1				18
+#define ACT_RECHARGE1			19
+#define ACT_SLEEP				20
+#define ACT_LIGHTNING_BOLT		21
+#define ACT_ELEC2				22
+#define ACT_BANISHMENT			23
+#define ACT_MASS_BANISHMENT		24
+#define ACT_IDENTIFY			25
+#define ACT_DRAIN_LIFE1			26
+#define ACT_DRAIN_LIFE2			27
+#define ACT_BIZZARE				28
+#define ACT_STAR_BALL			29
+#define ACT_RAGE_BLESS_RESIST	30
 #define ACT_PHASE               31
 #define ACT_TRAP_DOOR_DEST      32
 #define ACT_DETECT              33
