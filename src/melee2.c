@@ -1808,15 +1808,6 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 				if (alt_path == PROJECT_NOT_CLEAR)
 				{
-					if (cave_m_idx[alt_y][alt_x])
-					{
-						monster_type *m2_ptr = &mon_list[cave_m_idx[alt_y][alt_x]];
-						monster_race *r2_ptr = &r_info[m2_ptr->r_idx];
-
-						if (!race_similar_monsters(m_idx, alt_y, alt_x)) continue;
-						if (!race_similar_breaths(r_ptr, r2_ptr)) continue;
-					}
-
 					/*we already have a NOT_CLEAR path*/
 					if ((best_path == PROJECT_NOT_CLEAR) && (one_in_(2))) continue;
 				}
@@ -1847,24 +1838,36 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 		 * Don't allow breathing if player is not in a projectable path.
 		 * (In Moria breaths are simple ball spells)
 		 */
-		if ((!monster_blocking) && (game_mode != GAME_NPPMORIA))
+		if (!monster_blocking)
 		{
-			f4 &= ~(RF4_BREATH_MASK);
-			f5 &= ~(RF5_BREATH_MASK);
-			f6 &= ~(RF6_BREATH_MASK);
-			f7 &= ~(RF7_BREATH_MASK);
+			if (game_mode != GAME_NPPMORIA)
+			{
+				f4 &= ~(RF4_BREATH_MASK);
+				f5 &= ~(RF5_BREATH_MASK);
+				f6 &= ~(RF6_BREATH_MASK);
+				f7 &= ~(RF7_BREATH_MASK);
+			}
 			require_los = FALSE;
 		}
 
 		/*We don't have a reason to try a ball spell*/
 		if (clear_ball_spell)
 		{
-			f4 &= ~(RF4_BALL_MASK);
-			f5 &= ~(RF5_BALL_MASK);
-			f6 &= ~(RF6_BALL_MASK);
-			f7 &= ~(RF7_BALL_MASK);
+			if (game_mode == GAME_NPPMORIA)
+			{
+				f4 &= ~(RF4_BREATH_MASK);
+				f5 &= ~(RF5_BREATH_MASK);
+				f6 &= ~(RF6_BREATH_MASK);
+				f7 &= ~(RF7_BREATH_MASK);
+			}
+			else
+			{
+				f4 &= ~(RF4_BALL_MASK);
+				f5 &= ~(RF5_BALL_MASK);
+				f6 &= ~(RF6_BALL_MASK);
+				f7 &= ~(RF7_BALL_MASK);
+			}
 		}
-
 	}
 
 	/* Remove spells the 'no-brainers'*/

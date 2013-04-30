@@ -414,7 +414,7 @@ A:0/1
 F:SHOW_MODS
 
 
-N:39:& Dagger (Stiletto)~
+N:39:& Dagger~ (Stiletto)
 G:|:W
 I:23:3:0
 W:0:1:12:10
@@ -423,7 +423,7 @@ A:0/1
 F:SHOW_MODS
 
 
-N:40:& Dagger (Bodkin)~
+N:40:& Dagger~ (Bodkin)
 G:|:W
 I:23:4:0
 W:1:1:20:10
@@ -432,7 +432,7 @@ A:1/1
 F:SHOW_MODS
 
 
-N:41:& Dagger (Main Gauche)~
+N:41:& Dagger~ (Main Gauche)
 G:|:W
 I:23:5:0
 W:2:1:30:25
@@ -441,7 +441,7 @@ A:2/1
 F:SHOW_MODS
 
 
-N:42:& Dagger (Misericorde)~
+N:42:& Dagger~ (Misericorde)
 G:|:W
 I:23:6:0
 W:0:1:15:10
@@ -486,7 +486,7 @@ A:7/1
 F:SHOW_MODS
 
 
-N:47:& Thrusting Sword (Bilbo)~
+N:47:& Thrusting Sword~ (Bilbo)
 G:|:W
 I:23:13:0
 W:4:1:80:60
@@ -504,7 +504,7 @@ A:2/1
 F:SHOW_MODS
 
 
-N:49:& Thrusting Sword (Baselard)~
+N:49:& Thrusting Sword~ (Baselard)
 G:|:W
 I:23:15:0
 W:5:1:100:80
@@ -558,7 +558,7 @@ A:7/1
 F:SHOW_MODS
 
 
-N:55:& Two-Handed Sword (Claymore)~
+N:55:& Two-Handed Sword~ (Claymore)
 G:|:W
 I:23:25:0
 W:30:1:200:775
@@ -567,7 +567,7 @@ A:30/1
 F:SHOW_MODS
 
 
-N:56:& Two-Handed Sword (Espadon)~
+N:56:& Two-Handed Sword~ (Espadon)
 G:|:s2
 I:23:26:0
 W:35:1:180:655
@@ -576,7 +576,7 @@ A:35/1
 F:SHOW_MODS
 
 
-N:57:& Two-Handed Sword (Flamberge)~
+N:57:& Two-Handed Sword~ (Flamberge)
 G:|:s2
 I:23:27:0
 W:45:1:240:1000
@@ -594,7 +594,7 @@ A:40/1
 F:SHOW_MODS
 
 
-N:59:& Two-Handed Sword (No-Dachi)~
+N:59:& Two-Handed Sword~ (No-Dachi)
 G:|:s2
 I:23:29:0
 W:45:1:200:675
@@ -603,7 +603,7 @@ A:45/1
 F:SHOW_MODS
 
 
-N:60:& Two-Handed Sword (Zweihander)~
+N:60:& Two-Handed Sword~ (Zweihander)
 G:|:s2
 I:23:31:0
 W:50:1:280:1500
@@ -720,7 +720,7 @@ A:17/1
 F:SHOW_MODS
 
 
-N:74:& Battle Axe (Balestarius)~
+N:74:& Battle Axe~ (Balestarius)
 G:/:s
 I:22:22:0
 W:30:1:180:500
@@ -729,7 +729,7 @@ A:30/1
 F:SHOW_MODS
 
 
-N:75:& Battle Axe (European)~
+N:75:& Battle Axe~ (European)
 G:/:D
 I:22:23:0
 W:13:1:170:334
@@ -747,7 +747,7 @@ F:SHOW_MODS
 
 ##### Blunt Weapons #####
 
-N:78:& Cat-o'-Nine-Tails~
+N:78:& Cat-o'-Nine-Tails
 G:\:D
 I:21:1:0
 W:3:1:40:14
@@ -1551,7 +1551,13 @@ A:7/1
 F:HIDE_TYPE
 
 
-# XXX Record182 is unused XXX #
+N:182:Free Action
+G:=:d
+I:45:21:0
+W:20:0:2:1500
+P:0:0d0:0:0:0
+A:20/1
+F:FREE_ACT | EASY_KNOW
 
 
 # XXX Record183 is unused XXX #
@@ -3326,7 +3332,8 @@ G:,:y
 I:80:38:500
 W:0:1:5:1
 P:0:0d0:0:0:0
-F:EASY_KNOW
+A:0/1
+F:STORE_ONLY | EASY_KNOW
 D:It provides nourishment for about 500 turns under normal conditions.
 
 
@@ -3335,7 +3342,8 @@ G:,:U1
 I:80:39:1750
 W:0:1:5:2
 P:0:0d0:0:0:0
-F:EASY_KNOW
+A:0/1
+F:STORE_ONLY | EASY_KNOW
 D:It provides nourishment for about 1750 turns under normal conditions.
 
 
@@ -3344,7 +3352,8 @@ G:!:u1
 I:80:40:500
 W:0:1:3:1
 P:0:0d0:0:0:0
-F:EASY_KNOW
+A:0/1
+F:STORE_ONLY | EASY_KNOW
 D:It provides nourishment for about 500 turns under normal conditions.
 
 
@@ -3353,11 +3362,19 @@ G:!:R
 I:80:41:400
 W:0:1:1:2
 P:0:0d0:0:0:0
-F:EASY_KNOW
+A:0/1
+F:STORE_ONLY | EASY_KNOW
 D:It provides nourishment for about 400 turns under normal conditions.
 
 
-# XXX Record362 is unused XXX #
+N:362:& Pint~ of Fine Grade Mush
+G:!:U1
+I:80:42:1500
+W:0:0:1:1
+P:0:1d1:0:0:0
+A:0/1
+F:STORE_ONLY | EASY_KNOW
+D:It provides nourishment for about 1500 turns under normal conditions.
 
 
 # XXX Record363 is unused XXX #
@@ -3658,7 +3675,7 @@ A:1/1
 F:EASY_KNOW
 
 
-N:402:& broken set of teeth
+N:402:& broken set~ of teeth
 G:s:w
 I:1:11:0
 W:0:1:3:0
@@ -3694,7 +3711,7 @@ A:0/1
 F:EASY_KNOW
 
 
-N:407:& broken stick
+N:407:& broken stick~
 G:~:U1
 I:3:13:0
 W:0:1:3:0
