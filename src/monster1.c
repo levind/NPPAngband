@@ -619,7 +619,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 
 	if (l_ptr->r_l_flags4 & (RF4_LASH))
 	{
-		if (l_ptr->r_l_flags3 & (RF3_ANIMAL) || (r_ptr->blow[0].effect == RBE_ACID))
+		if ((l_ptr->r_l_flags3 & (RF3_ANIMAL)) || (r_ptr->blow[0].effect == RBE_ACID))
 			vp[vn++] = "spit at you from a distance";
 		else
 			vp[vn++] = "lash you if nearby";
@@ -1980,7 +1980,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 		i = p_ptr->lev;
 		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
-		/* Mention the dependance on the player's level */
+		/* Mention the dependence on the player's level */
 		text_out(format(" for a%s %lu%s level character.  ",
 			        q, (long)i, p));
 	}

@@ -6,9 +6,15 @@
 # N: serial number : dead player ghost name 
 # I: gender : race : class : depth 
 
-N:24:Halmo
+N:25:Halmo
+I:1:9:1:2
+
+N:26:Brin
+I:1:9:1:2
+
+N:27:Brin ii
 I:1:9:1:0
 
-N:25:Halmo
+N:28:Brin ii
 I:1:9:1:2
 
