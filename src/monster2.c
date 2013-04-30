@@ -706,6 +706,9 @@ s16b get_mon_num(int level, int y, int x, byte mp_flags)
 				if (mp_flags & (MPLACE_NO_MIMIC)) continue;
 			}
 
+			/* Hack -- some monsters can only be placed via treatment */
+			if (r_ptr->flags2 & (RF2_SPECIAL)) continue;
+
 			/* Hack -- "unique" monsters must be "unique" */
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
@@ -1142,11 +1145,10 @@ void display_monlist(void)
 			clear_from(0);
 		Term_gotoxy(0, 0);
 		text_out_to_screen(TERM_ORANGE,
-			"Your hallucinations are too wild to see things clearly.");
+			"You can't believe what you are seeing! It's like a dream!");
 
 		return;
 	}
-
 
 	/* Clear the term if in a subwindow, set x otherwise */
 	if (in_term)
@@ -1213,8 +1215,14 @@ void display_monlist(void)
 	/* Note no visible monsters at all */
 	if (!total_count)
 	{
+		/* Player is Blind */
+		if (p_ptr->timed[TMD_BLIND])
+		{
+			c_prt(TERM_ORANGE, "You can't see anything!", 0, 0);
+		}
+
 		/* Clear display and print note */
-		c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
+		else c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
 		if (!in_term)
 		    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 
@@ -3242,20 +3250,30 @@ void calc_monster_speed(int y, int x)
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] == 0) return;
 
+	if (game_mode == GAME_NPPMORIA)
+	{
+		speed = r_ptr->r_speed;
+		if (m_ptr->m_timed[MON_TMD_SLOW]) speed--;
+		if (m_ptr->m_timed[MON_TMD_FAST]) speed++;
+		m_ptr->m_speed = speed;
+
+		return;
+	}
+
 	/* Get the monster base speed */
-	speed = r_ptr->speed;
+	speed = r_ptr->r_speed;
 
 	/*note: a monster should only have one of these flags*/
 	if (m_ptr->mflag & (MFLAG_SLOWER))
 	{
 		/* Allow some small variation each time to make pillar dancing harder */
-		i = extract_energy[r_ptr->speed] / 10;
+		i = calc_energy_gain(r_ptr->r_speed);
 		speed -= rand_spread(0, i);
 	}
 	else if (m_ptr->mflag & (MFLAG_FASTER))
 	{
 		/* Allow some small variation each time to make pillar dancing harder */
-		i = extract_energy[r_ptr->speed] / 10;
+		i = calc_energy_gain(r_ptr->r_speed);
 		speed += rand_spread(0, i);
 	}
 
@@ -3264,7 +3282,7 @@ void calc_monster_speed(int y, int x)
 	if (m_ptr->m_timed[MON_TMD_SLOW]) speed -= 10;
 
 	/*set the speed and return*/
-	m_ptr->mspeed = speed;
+	m_ptr->m_speed = speed;
 
 	return;
 }
@@ -3335,7 +3353,7 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	if (!cave_exist_mon(r_ptr, y, x, FALSE, FALSE, FALSE)) return (FALSE);
 
 	/* Paranoia */
-	if (!r_ptr->speed) return (FALSE);
+	if (!r_ptr->r_speed) return (FALSE);
 
 	/* Limit the population */
 	if (r_ptr->cur_num >= r_ptr->max_num)
@@ -3970,7 +3988,7 @@ bool alloc_monster(int dis, byte mp_flags)
 			msg_print("Warning! Could not allocate a new monster.");
 		}
 
-		return FALSE;
+		return (FALSE);
 	}
 
 	/* Pick a monster */
@@ -4477,6 +4495,7 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	/* From project_m */ 		/* MON_MSG_DIE */
 	"die[s].",   				/* MON_MSG_DIE  */
 	"[is|are] destroyed.",		/* MON_MSG_DESTROYED */
+	"[is|are] embedded in the wall.",	/* MON_MSG_BURIED_ROCK */
 	"resist[s] a lot.",			/* MON_MSG_RESIST_A_LOT */
 	"[is|are] hit hard.",		/* MON_MSG_HIT_HARD */
 	"resist[s].",				/* MON_MSG_RESIST */
@@ -4494,6 +4513,8 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	"dissolve[s]!",				/* MON_MSG_DISSOLVE */
 	"catch[es] fire!",			/* MON_MSG_CATCH_FIRE */
 	"[is|are] badly frozen.", 	 /* MON_MSG_BADLY_FROZEN */
+	"[is|are] badly burned.", 	 /* MON_MSG_BADLY_BURNED */
+	"[is|are] severely poisoned.", 	 /* MON_MSG_BADLY_POISONED */
 	"shudder[s].",				/* MON_MSG_SHUDDER */
 	"become[s] aware of your crafty abilities.",/* MON_MSG_AWARE_OF_CRAFTY_ABILITIES */
 	"take[s] heed of your cunning tactics.",/* MON_MSG_AWARE_OF_CUNNING_TACTICS  */
@@ -4517,8 +4538,10 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	"flee[s] in terror!",		/* MON_MSG_FLEE_IN_TERROR */
 	"[is|are] no longer afraid.",/* MON_MSG_NOT_AFRAID */
 	"~You hear [a|several] scream[|s] of agony!",/* MON_MSG_MORIA_DEATH */
-	"disintegrates!",		/* MON_MSG_DISENTEGRATES */
+	"disintegrate[s]!",		/* MON_MSG_DISENTEGRATES */
+	"melt[s] away.",		/* MON_MSG_MELTS_AWAY */
 	"freeze[s] and shatter[s].",  /* MON_MSG_FREEZE_SHATTER */
+	"choke[s] and die[s].",  /* MON_MSG_CHOKE_DIE */
 	"lose[s] some mana!",		/* MON_MSG_MANA_DRAIN */
 	"~There [is|are] [a|several] mimic[|s]!",		/* MON_MSG_MIMIC_REVEAL */
 	"appear[s]!",				/* MON_MSG_MIMIC_APPEARS */

@@ -544,7 +544,7 @@ static void prt_welcome(const owner_type *ot_ptr)
 
 
 		/* Get a title for the character */
-		if ((i % 2) && randint0(2)) player_name = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		if ((i % 2) && randint0(2)) player_name = get_player_title();
 		else if (randint0(2))       player_name = op_ptr->full_name;
 		else                        player_name = (p_ptr->psex == SEX_MALE ? "sir" : "lady");
 
@@ -635,6 +635,39 @@ static bool check_gold(s32b price)
 
 	return (TRUE);
 }
+
+/* Percent decrease or increase in price of goods		 */
+int moria_chr_adj()
+{
+	int charisma  = p_ptr->state.stat_use[A_CHR];
+
+	if (charisma > 117) 		return(90);
+	else if (charisma > 107) 	return(92);
+	else if (charisma > 87)		return(94);
+	else if (charisma > 67)		return(96);
+	else if (charisma > 18)		return(98);
+	else switch(charisma)
+    {
+		case 18:	return(100);
+		case 17:	return(101);
+		case 16:	return(102);
+		case 15:	return(103);
+		case 14:	return(104);
+		case 13:	return(106);
+		case 12:	return(108);
+		case 11:	return(110);
+		case 10:	return(112);
+		case 9:  return(114);
+		case 8:  return(116);
+		case 7:  return(118);
+		case 6:  return(120);
+		case 5:  return(122);
+		case 4:  return(125);
+		case 3:  return(130);
+		default: return(100);
+    }
+}
+
 
 static void init_services_and_quests(int store_num)
 {
@@ -780,7 +813,11 @@ static u32b price_services(int store_num, int choice)
 	if (store_num != STORE_GUILD)
 	{
 		/* Extract the "minimum" price */
-		price = ((price * adj_chr_gold[p_ptr->state.stat_ind[A_CHR]]) / 100L);
+		if (game_mode == GAME_NPPMORIA)
+		{
+			price = ((price * moria_chr_adj()) / 100L);
+		}
+		else price = ((price * adj_chr_gold[p_ptr->state.stat_ind[A_CHR]]) / 100L);
 	}
 
 	/*Guild price factoring*/
@@ -1757,6 +1794,10 @@ s32b price_item(const object_type *o_ptr, bool store_buying)
 
 	/* Add in the charisma factor */
 	if (this_store == STORE_B_MARKET) adjust = 175;
+	else if (game_mode == GAME_NPPMORIA)
+	{
+		adjust = moria_chr_adj();
+	}
 	else adjust = adj_chr_gold[p_ptr->state.stat_ind[A_CHR]];
 
 
@@ -3997,13 +4038,12 @@ void do_cmd_reward(cmd_code code, cmd_arg args[])
 	/*It's an ironman spellbook, so make the spells available. */
 	if ((k_ptr->k_flags3 & (TR3_IRONMAN_ONLY)) && (cp_ptr->spell_book == k_ptr->tval))
 	{
-		byte realm, j;
-		realm = get_player_spell_realm();
+		byte j;
 
 		/* Extract spells */
 		for (j = 0; j < SPELLS_PER_BOOK; j++)
 		{
-			s16b spell = spell_list[realm][k_ptr->sval][j];
+			s16b spell = get_spell_from_list(k_ptr->sval, j);
 
 			/*skip blank spell slots*/
 			if (spell == -1) continue;

@@ -92,7 +92,7 @@ static void find_range(monster_type *m_ptr)
 	if (m_ptr->min_range > FLEE_RANGE) m_ptr->min_range = FLEE_RANGE;
 
 	/* Nearby monsters that cannot run away will stand and fight */
-	if ((m_ptr->cdis < TURN_RANGE) && (m_ptr->mspeed < p_ptr->state.p_speed))
+	if ((m_ptr->cdis < TURN_RANGE) && (m_ptr->m_speed < p_ptr->state.p_speed))
 		m_ptr->min_range = 1;
 
 	/* Now find preferred range */
@@ -1662,6 +1662,24 @@ static int choose_attack_spell_fast(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, 
 	return (spells[rand_int(num)]);
 }
 
+static bool mon_race_has_ball_spells(const monster_race *r_ptr)
+{
+	if (r_ptr->flags4 & (RF4_BALL_MASK)) return (TRUE);
+	if (r_ptr->flags5 & (RF5_BALL_MASK)) return (TRUE);
+	if (r_ptr->flags6 & (RF6_BALL_MASK)) return (TRUE);
+	if (r_ptr->flags7 & (RF7_BALL_MASK)) return (TRUE);
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (r_ptr->flags4 & (RF4_BREATH_MASK)) return (TRUE);
+		if (r_ptr->flags5 & (RF5_BREATH_MASK)) return (TRUE);
+		if (r_ptr->flags6 & (RF6_BREATH_MASK)) return (TRUE);
+		if (r_ptr->flags7 & (RF7_BREATH_MASK)) return (TRUE);
+	}
+
+	return (FALSE);
+}
+
 /*
  * Have a monster choose a spell.
  *
@@ -1770,11 +1788,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 		}
 
 		/*are we in range (and not stupid), and have access to ball spells?*/
-		else if ((m_ptr->cdis < MAX_RANGE) && (!(r_ptr->flags2 & (RF2_STUPID))) &&
-			 ((r_ptr->flags4 & (RF4_BALL_MASK)) ||
-			  (r_ptr->flags5 & (RF5_BALL_MASK)) ||
-			  (r_ptr->flags6 & (RF6_BALL_MASK)) ||
-			  (r_ptr->flags7 & (RF7_BALL_MASK))))
+		else if ((m_ptr->cdis < MAX_RANGE) && (!(r_ptr->flags2 & (RF2_STUPID))) && mon_race_has_ball_spells(r_ptr))
 		{
 
 			int alt_y, alt_x, alt_path, best_y, best_x, best_path;
@@ -1794,15 +1808,6 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 				if (alt_path == PROJECT_NOT_CLEAR)
 				{
-					if (cave_m_idx[alt_y][alt_x])
-					{
-						monster_type *m2_ptr = &mon_list[cave_m_idx[alt_y][alt_x]];
-						monster_race *r2_ptr = &r_info[m2_ptr->r_idx];
-
-						if (!race_similar_monsters(m_idx, alt_y, alt_x)) continue;
-						if (!race_similar_breaths(r_ptr, r2_ptr)) continue;
-					}
-
 					/*we already have a NOT_CLEAR path*/
 					if ((best_path == PROJECT_NOT_CLEAR) && (one_in_(2))) continue;
 				}
@@ -1829,25 +1834,40 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 			}
 		}
 
-		/* Don't allow breathing if player is not in a projectable path */
+		/*
+		 * Don't allow breathing if player is not in a projectable path.
+		 * (In Moria breaths are simple ball spells)
+		 */
 		if (!monster_blocking)
 		{
-			f4 &= ~(RF4_BREATH_MASK);
-			f5 &= ~(RF5_BREATH_MASK);
-			f6 &= ~(RF6_BREATH_MASK);
-			f7 &= ~(RF7_BREATH_MASK);
+			if (game_mode != GAME_NPPMORIA)
+			{
+				f4 &= ~(RF4_BREATH_MASK);
+				f5 &= ~(RF5_BREATH_MASK);
+				f6 &= ~(RF6_BREATH_MASK);
+				f7 &= ~(RF7_BREATH_MASK);
+			}
 			require_los = FALSE;
 		}
 
 		/*We don't have a reason to try a ball spell*/
 		if (clear_ball_spell)
 		{
-			f4 &= ~(RF4_BALL_MASK);
-			f5 &= ~(RF5_BALL_MASK);
-			f6 &= ~(RF6_BALL_MASK);
-			f7 &= ~(RF7_BALL_MASK);
+			if (game_mode == GAME_NPPMORIA)
+			{
+				f4 &= ~(RF4_BREATH_MASK);
+				f5 &= ~(RF5_BREATH_MASK);
+				f6 &= ~(RF6_BREATH_MASK);
+				f7 &= ~(RF7_BREATH_MASK);
+			}
+			else
+			{
+				f4 &= ~(RF4_BALL_MASK);
+				f5 &= ~(RF5_BALL_MASK);
+				f6 &= ~(RF6_BALL_MASK);
+				f7 &= ~(RF7_BALL_MASK);
+			}
 		}
-
 	}
 
 	/* Remove spells the 'no-brainers'*/
@@ -3363,7 +3383,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 		 */
 		if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) &&
 			((m_ptr->mflag & (MFLAG_JUST_SCARED | MFLAG_DESPERATE)) == 0) &&
-		    ((m_ptr->cdis < TURN_RANGE) || (m_ptr->mspeed < p_ptr->state.p_speed)))
+		    ((m_ptr->cdis < TURN_RANGE) || (m_ptr->m_speed < p_ptr->state.p_speed)))
 		{
 			if (m_ptr->m_timed[MON_TMD_FEAR])
 			{
@@ -3621,7 +3641,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 	{
 		/* The character is too close to avoid, and faster than we are */
 		if ((!m_ptr->m_timed[MON_TMD_FEAR]) && (m_ptr->cdis < TURN_RANGE) &&
-		     (p_ptr->state.p_speed > m_ptr->mspeed))
+		     (p_ptr->state.p_speed > m_ptr->m_speed))
 		{
 			/* Recalculate range */
 			find_range(m_ptr);
@@ -6068,14 +6088,16 @@ void process_entities(void)
 	/* Give the character some energy (unless leaving) */
 	if (!p_ptr->leaving)
 	{
+		byte energy_gain = calc_energy_gain(p_ptr->state.p_speed);
+
 		/* Give character energy */
-		p_ptr->p_energy += extract_energy[p_ptr->state.p_speed];
+		p_ptr->p_energy += energy_gain;
 
 		/* Can the character move? */
 		if (p_ptr->p_energy >= ENERGY_TO_MOVE)
 		{
 			/* Determine how much energy the character gets per turn */
-			energy_per_turn = extract_energy[p_ptr->state.p_speed];
+			energy_per_turn = energy_gain;
 
 			/* Note how much energy the character had last turn */
 			old_energy = p_ptr->p_energy - energy_per_turn;
@@ -6099,7 +6121,7 @@ void process_entities(void)
 		/* Ignore dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		energy_per_turn = extract_energy[m_ptr->mspeed];
+		energy_per_turn = calc_energy_gain(m_ptr->m_speed);
 
 		/* Give this monster some energy */
 		m_ptr->m_energy += energy_per_turn;
