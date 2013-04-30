@@ -396,6 +396,7 @@
 #define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
 /* xxx */
+
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -503,6 +504,7 @@
 #define SV_WAND_DRAGON_COLD		27
 #define SV_WAND_DRAGON_BREATH	28
 #define SV_WAND_WALL_BUILDING	29
+
 
 
 /* The "sval" codes for TV_ROD */
@@ -694,6 +696,7 @@
 #define SV_FOOD_BEEF_JERKY		39
 #define SV_FOOD_FINE_ALE		40
 #define SV_FOOD_FINE_WINE		41
+#define SV_FOOD_FINE_MUSH		42
 
 /*gold, incomplete list defined primarily for the mimics*/
 
@@ -974,7 +977,7 @@
 #define TR3_HOLD_LIFE		0x00000080L /* Hold life */
 #define TR3_NEVER_PICKUP	0x00000100L /* monsters can't pickup*/
 #define TR3_IRONMAN_ONLY	0x00000200L	/* Ironman object */
-#define TR3_TR3XXX3			0x00000400L
+#define TR3_STORE_ONLY      0x00000400L /* Do not generate object in a dungeon */
 #define TR3_TR3XXX4			0x00000800L
 #define TR3_IMPACT			0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L /* Random teleportation */
@@ -985,6 +988,27 @@
 #define TR3_IGNORE_FIRE		0x00040000L /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L /* Item ignores Cold Damage */
 #define TR3_THROWING		0x00100000L /* Can be thrown for additional damage */
+#define TR3_SLOW_DIGEST     0x00000001L /* Slow digest */
+#define TR3_FEATHER         0x00000002L /* Feather Falling */
+#define TR3_LIGHT            0x00000004L /* Perma-Light */
+#define TR3_REGEN           0x00000008L /* Regeneration */
+#define TR3_TELEPATHY       0x00000010L /* Telepathy */
+#define TR3_SEE_INVIS       0x00000020L /* See Invis */
+#define TR3_FREE_ACT        0x00000040L /* Free action */
+#define TR3_HOLD_LIFE       0x00000080L /* Hold life */
+#define TR3_NEVER_PICKUP    0x00000100L /* monsters can't pickup*/
+#define TR3_IRONMAN_ONLY    0x00000200L	/* Ironman object */
+#define TR3_STORE_ONLY      0x00000400L /* Do not generate object in a dungeon */
+#define TR3_TR3XXX4         0x00000800L
+#define TR3_IMPACT          0x00001000L /* Earthquake blows */
+#define TR3_TELEPORT        0x00002000L /* Random teleportation */
+#define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
+#define TR3_DRAIN_EXP       0x00008000L /* Experience drain */
+#define TR3_IGNORE_ACID     0x00010000L /* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC     0x00020000L /* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
+#define TR3_THROWING        0x00100000L /* Can be thrown for additional damage */
 #define TR3_PERFECT_BALANCE	0x00200000L /* item with perfect balance  */
 #define TR3_BLESSED			0x00400000L /* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L /* Item can be activated */

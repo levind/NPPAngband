@@ -3316,24 +3316,7 @@ cptr roguelike_home_letters =  "acfhmnoqruvyz13456790ABD";
 cptr standard_equip_letters =  "abcdefghijklmnopqrstuvw";
 cptr roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
 
-
-const slays_structure slays_info[11] =
-{
-	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL,	"animals"},
-	{TR1_SLAY_EVIL, 2, RF3_EVIL,		"evil creatures"},
-	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
-	{TR1_SLAY_DEMON, 3, RF3_DEMON,		"demons"},
-	{TR1_SLAY_ORC, 3, RF3_ORC,			"orcs"},
-	{TR1_SLAY_TROLL, 3, RF3_TROLL,		"trolls"},
-	{TR1_SLAY_GIANT, 3, RF3_GIANT,		"giants"},
-	{TR1_SLAY_DRAGON, 3, RF3_DRAGON,	"dragons"},
-	{TR1_KILL_DRAGON, 5, RF3_DRAGON,	"dragons"},
-	{TR1_KILL_DEMON, 5, RF3_DEMON,		"demons"},
-	{TR1_KILL_UNDEAD, 5, RF3_UNDEAD,	"the undead"},
-};
-
-
-const brands_structure brands_info[10] =
+const brands_structure brands_info_nppangband[10] =
 {
 	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
 	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
@@ -3348,8 +3331,47 @@ const brands_structure brands_info[10] =
 };
 
 
-const mon_susceptibility_struct mon_suscept[2] =
+const slays_structure slays_info_nppangband[11] =
+{
+	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL,	"animals"},
+	{TR1_SLAY_EVIL, 2, RF3_EVIL,		"evil creatures"},
+	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
+	{TR1_SLAY_DEMON, 3, RF3_DEMON,		"demons"},
+	{TR1_SLAY_ORC, 3, RF3_ORC,			"orcs"},
+	{TR1_SLAY_TROLL, 3, RF3_TROLL,		"trolls"},
+	{TR1_SLAY_GIANT, 3, RF3_GIANT,		"giants"},
+	{TR1_SLAY_DRAGON, 3, RF3_DRAGON,	"dragons"},
+	{TR1_KILL_DRAGON, 5, RF3_DRAGON,	"dragons"},
+	{TR1_KILL_DEMON, 5, RF3_DEMON,		"demons"},
+	{TR1_KILL_UNDEAD, 5, RF3_UNDEAD,	"the undead"},
+};
+
+/*
+ * This table is a hack, as it works differently than brands info for Angband.
+ * Only creatures who are succeptible to the element take extra damage.
+ */
+const slays_structure brands_info_nppmoria[4] =
+{
+	{TR1_BRAND_FIRE, 2, RF3_HURT_FIRE, "are susceptible to fire"},
+	{TR1_BRAND_COLD, 2, RF3_HURT_COLD, "are susceptible to cold"},
+	{TR1_BRAND_ACID, 2, RF3_HURT_ACID, "are susceptible to acid"},
+	{TR1_BRAND_POIS, 2, RF3_HURT_POIS, "are susceptible to poison"},
+};
+
+
+const slays_structure slays_info_nppmoria[4] =
+{
+	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
+	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
+	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
+	{TR1_SLAY_DRAGON, 4, RF3_DRAGON, 	"dragons"},
+};
+
+
+const mon_susceptibility_struct mon_suscept[4] =
 {
 	{TR1_BRAND_FIRE, RF3_HURT_FIRE, "fire"},
 	{TR1_BRAND_COLD, RF3_HURT_COLD, "cold"},
+	{TR1_BRAND_ACID, RF3_HURT_ACID, "acid"},
+	{TR1_BRAND_POIS, RF3_HURT_COLD, "poison"},
 };
