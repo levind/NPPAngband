@@ -106,9 +106,11 @@ extern cptr squelch_status[SQUELCH_OPT_MAX];
 extern const byte squelch_status_color[SQUELCH_OPT_MAX];
 extern const byte arena_level_map[ARENA_LEVEL_HGT][ARENA_LEVEL_WID];
 extern const byte pit_room_maps[MAX_PIT_PATTERNS][PIT_HEIGHT][PIT_WIDTH];
-extern const slays_structure slays_info[11];
-extern const brands_structure brands_info[10];
-extern const mon_susceptibility_struct mon_suscept[2];
+extern const slays_structure slays_info_nppangband[11];
+extern const brands_structure brands_info_nppangband[10];
+extern const slays_structure slays_info_nppmoria[4];
+extern const slays_structure brands_info_nppmoria[4];
+extern const mon_susceptibility_struct mon_suscept[4];
 
 
 /* variable.c */
@@ -373,6 +375,7 @@ extern bool test_hit(int chance, int ac, int vis);
 extern int rogue_shot(const object_type *o_ptr, int *plus, player_state shot_state);
 extern bool check_hit(int power);
 extern int critical_hit_chance(const object_type *o_ptr, player_state a_state, bool id_only);
+extern int critical_hit_check(const object_type *o_ptr, int *dd, int *plus);
 extern int critical_shot_chance(const object_type *o_ptr, player_state a_state, bool throw, bool id_only, u32b f3);
 extern void py_attack(int y, int x);
 extern void do_cmd_fire(cmd_code code, cmd_arg args[]);
