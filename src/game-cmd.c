@@ -87,6 +87,7 @@ static struct
 	{ CMD_PATHFIND,			{ arg_POINT, arg_END }, do_cmd_pathfind, FALSE, 0 },
 	{ CMD_PICKUP,			{ arg_ITEM, arg_END }, do_cmd_pickup, FALSE, 0 },
 	{ CMD_WIELD,			{ arg_ITEM, arg_NUMBER, arg_END }, do_cmd_wield, FALSE, 0 },
+	{ CMD_SWAP,				{ arg_END }, do_cmd_swap_weapon, FALSE, 0 },
 	{ CMD_TAKEOFF,			{ arg_ITEM, arg_END }, do_cmd_takeoff, FALSE, 0 },
 	{ CMD_DROP,				{ arg_ITEM, arg_NUMBER, arg_END }, do_cmd_drop, FALSE, 0 },
 	{ CMD_UNINSCRIBE,		{ arg_ITEM, arg_END }, do_cmd_uninscribe, FALSE, 0 },
@@ -162,6 +163,7 @@ errr cmd_insert_s(game_command *cmd)
  */
 errr cmd_get(cmd_context c, game_command *cmd, bool wait)
 {
+
 	/* If there are no commands queued, ask the UI for one. */
 	if (cmd_head == cmd_tail)
 	{
@@ -171,11 +173,13 @@ errr cmd_get(cmd_context c, game_command *cmd, bool wait)
 	/* If we have a command ready, set it and return success. */
 	if (cmd_head != cmd_tail)
 	{
+
 		*cmd = cmd_queue[cmd_tail++];
 		if (cmd_tail == CMD_QUEUE_SIZE) cmd_tail = 0;
 
 		return 0;
 	}
+
 
 	/* Failure to get a command. */
 	return 1;
@@ -399,23 +403,32 @@ void process_command(cmd_context ctx, bool no_request)
 			}
 		}
 
-		/* Command repetition */
-		if (game_cmds[idx].repeat_allowed)
+		if (player_can_repeat())
 		{
-			/* Auto-repeat */
-			if (game_cmds[idx].auto_repeat_n > 0 && p_ptr->command_arg == 0 && p_ptr->command_rep == 0)
-				p_ptr->command_arg = game_cmds[idx].auto_repeat_n;
+			/* Command repetition */
+			if (game_cmds[idx].repeat_allowed)
+			{
+				/* Auto-repeat */
+				if (game_cmds[idx].auto_repeat_n > 0 && p_ptr->command_arg == 0 && p_ptr->command_rep == 0)
+					p_ptr->command_arg = game_cmds[idx].auto_repeat_n;
 
-			allow_repeated_command();
+				allow_repeated_command();
+			}
+
+			cmd_enable_repeat();
 		}
 
-		repeat_prev_allowed = TRUE;
+		else cmd_disable_repeat();
 
 		if (game_cmds[idx].fn)
 			game_cmds[idx].fn(cmd.command, cmd.args);
 	}
 }
 
+void cmd_enable_repeat(void)
+{
+	repeat_prev_allowed = TRUE;
+}
 
 void cmd_disable_repeat(void)
 {

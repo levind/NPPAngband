@@ -60,14 +60,12 @@ typedef struct birther /*lovely*/ birther; /*sometimes we think she's a dream*/
 /*
  * A structure to hold "rolled" information, and any
  * other useful state for the birth process.
- *
- * XXX Demand Obama's birth certificate
  */
 struct birther
 {
-	byte sex;
-	byte race;
-	byte class;
+	byte p_sex;
+	byte p_race;
+	byte p_class;
 
 	s16b age;
 	s16b wt;
@@ -95,6 +93,7 @@ static void set_moria_options(void)
 	birth_force_small_lev = adult_force_small_lev = FALSE;
 	birth_no_artifacts = adult_no_artifacts = FALSE;
 	birth_simple_dungeons = adult_simple_dungeons = TRUE;
+	birth_swap_weapons = adult_swap_weapons = TRUE;
 	birth_no_xtra_artifacts = adult_no_xtra_artifacts = TRUE;
 	birth_no_store_services = adult_no_store_services = TRUE;
 	birth_no_player_ghosts = adult_no_player_ghosts = TRUE;
@@ -112,9 +111,9 @@ static void save_roller_data(birther *player)
 	int i;
 
 	/* Save the data */
-	player->sex = p_ptr->psex;
-	player->race = p_ptr->prace;
-	player->class = p_ptr->pclass;
+	player->p_sex = p_ptr->psex;
+	player->p_race = p_ptr->prace;
+	player->p_class = p_ptr->pclass;
 	player->age = p_ptr->age;
 	player->wt = p_ptr->wt_birth;
 	player->ht = p_ptr->ht_birth;
@@ -157,9 +156,9 @@ static void load_roller_data(birther *player, birther *prev_player)
 	/*** Load the previous data ***/
 
 	/* Load the data */
-	p_ptr->psex = player->sex;
-	p_ptr->prace = player->race;
-	p_ptr->pclass = player->class;
+	p_ptr->psex = player->p_sex;
+	p_ptr->prace = player->p_race;
+	p_ptr->pclass = player->p_class;
 	p_ptr->age = player->age;
 	p_ptr->wt = p_ptr->wt_birth = player->wt;
 	p_ptr->ht = p_ptr->ht_birth = player->ht;
@@ -707,8 +706,7 @@ static void recalculate_stats(int *stats, int points_left)
 			int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 			/* Apply the racial/class bonuses */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-				modify_stat_value(stats[i], bonus);
+			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = p_ptr->stat_birth[i] = modify_stat_value(stats[i], bonus);
 		}
 	}
 
@@ -748,14 +746,17 @@ static void reset_stats(int stats[A_MAX], int points_spent[A_MAX], int *points_l
 	   stat values (i.e. after modifiers) and tell the UI things have
 	   changed. */
 	recalculate_stats(stats, *points_left);
+
 	event_signal_birthpoints(points_spent, *points_left);
 }
 
 static bool buy_stat(int choice, int stats[A_MAX], int points_spent[A_MAX],
 					 int *points_left)
 {
-	/* Must be a valid stat, and have a "base" of below 18 to be adjusted */
-	if (!(choice >= A_MAX || choice < 0) &&	(stats[choice] < 18))
+	byte max_stat = (adult_maximize ? 18 : 17);
+
+	/* Must be a valid stat, and have a "base" of below allowable max to be adjusted */
+	if (!(choice >= A_MAX || choice < 0) &&	(stats[choice] < max_stat))
 	{
 		/* Get the cost of buying the extra point (beyond what
 		   it has already cost to get this far). */
@@ -1084,6 +1085,9 @@ void player_birth(bool quickstart_allowed)
 	 */
 	birther quickstart_prev = {0, 0, 0, 0, 0, 0, 0, 0, {0}, "" };
 
+	/* Turn off many options for Moria */
+	if (game_mode == GAME_NPPMORIA) set_moria_options();
+
 	/*
 	 * If there's a quickstart character, store it for later use.
 	 * If not, default to whatever the first of the choices is.
@@ -1099,6 +1103,7 @@ void player_birth(bool quickstart_allowed)
 	}
 
 	reset_stats(stats, points_spent, &points_left);
+
 	do_birth_reset(quickstart_allowed, &quickstart_prev);
 
 	/* Handle incrementing name suffix */
@@ -1130,7 +1135,9 @@ void player_birth(bool quickstart_allowed)
 		if (cmd.command == CMD_BIRTH_RESET)
 		{
 			reset_stats(stats, points_spent, &points_left);
+
 			do_birth_reset(quickstart_allowed, &quickstart_prev);
+
 			rolled_stats = FALSE;
 		}
 		else if (cmd.command == CMD_CHOOSE_SEX)
@@ -1255,8 +1262,8 @@ void player_birth(bool quickstart_allowed)
 		else if (cmd.command == CMD_HELP)
 		{
 			char buf[80];
-
-			strnfmt(buf, sizeof(buf), "birth.txt");
+			if (game_mode == GAME_NPPMORIA) strnfmt(buf, sizeof(buf), "m_birth.txt");
+			else strnfmt(buf, sizeof(buf), "birth.txt");
 			screen_save();
 			show_file(buf, NULL, 0, 0);
 			screen_load();
@@ -1281,8 +1288,6 @@ void player_birth(bool quickstart_allowed)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 	}
 
-	/* Turn off many options for Moria */
-	if (game_mode == GAME_NPPMORIA) set_moria_options();
 
 	/*Re-set the squelch settings.  Spellbooks are never_pickup by default. */
 	for (i = 0; i < z_info->k_max; i++)
@@ -1338,7 +1343,8 @@ void player_birth(bool quickstart_allowed)
 		file_putf(notes_file, "{{full_character_name}} the %s %s\n",
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
-		file_putf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+		if (game_mode == GAME_NPPMORIA) file_putf(notes_file, "Began the quest to kill The Balrog of Moria on %s\n",long_day);
+		else file_putf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
 		file_putf(notes_file, "============================================================\n");
 		file_putf(notes_file, "                   CHAR.  \n");
 		file_putf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");

@@ -50,17 +50,19 @@
 #define VERSION_NAME "NPPAngband"
 #define SAVEFILE_NAME  "VNLA"
 
+#define VERSION_MODE_NAME (game_mode == GAME_NPPMORIA ? "NPPMoria" : "NPPAngband")
+
 /*
  * Current version string
  */
-#define VERSION_STRING	"6.1.2"
+#define VERSION_STRING	"7.0.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	6
-#define VERSION_MINOR	1
+#define VERSION_MAJOR	7
+#define VERSION_MINOR	0
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -68,8 +70,8 @@
 /*
  * Oldest version number that can still be imported
  */
-#define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	6
+#define OLD_VERSION_MAJOR	7
+#define OLD_VERSION_MINOR	0
 #define OLD_VERSION_PATCH	0
 
 /* Various game modes */
@@ -300,11 +302,14 @@
  * Store constants
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_TURNOVER	12		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	8		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	20		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
+#define STORE_TURNOVER_NPPANGBAND	12		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPANGBAND	8		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPANGBAND	20		/* Max slots to "always" keep full */
+#define STORE_TURNOVER_NPPMORIA		9		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPMORIA		10		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPMORIA		18		/* Max slots to "always" keep full */
 
 /*
  * Misc constants
@@ -797,6 +802,7 @@ enum
 #define OPT_birth_no_xtra_artifacts	(OPT_BIRTH+15)
 #define OPT_birth_money				(OPT_BIRTH+16)
 #define OPT_birth_simple_dungeons	(OPT_BIRTH+17)
+#define OPT_birth_swap_weapons		(OPT_BIRTH+18)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -824,6 +830,7 @@ enum
 #define OPT_adult_no_xtra_artifacts	(OPT_ADULT+15)
 #define OPT_adult_birth_money		(OPT_ADULT+16)
 #define OPT_adult_simple_dungeons	(OPT_ADULT+17)
+#define OPT_adult_swap_weapons		(OPT_ADULT+18)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -930,6 +937,7 @@ enum
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 #define birth_money				op_ptr->opt[OPT_birth_money]
 #define birth_simple_dungeons	op_ptr->opt[OPT_birth_simple_dungeons]
+#define birth_swap_weapons		op_ptr->opt[OPT_birth_swap_weapons]
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -957,6 +965,7 @@ enum
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define adult_money				op_ptr->opt[OPT_adult_money]
 #define adult_simple_dungeons	op_ptr->opt[OPT_adult_simple_dungeons]
+#define adult_swap_weapons		op_ptr->opt[OPT_adult_swap_weapons]
 
 #define hp_changes_color		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest		op_ptr->opt[OPT_verify_leave_quest]

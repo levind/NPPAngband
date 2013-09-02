@@ -1560,6 +1560,9 @@ static void recharge_objects(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Skip the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0 && !fuelable_light_p(o_ptr))
 		{
@@ -2004,7 +2007,7 @@ static void process_world(void)
 	}
 
 	/* Occasionally have the ghost give a challenge */
-	if (turn % 100)
+	if (turn % 500)
 	{
 		if (one_in_(50)) ghost_challenge();
 	}
@@ -2098,7 +2101,7 @@ static void process_world(void)
 		if (!(turn % 100))
 		{
 			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->state.p_speed] * 2;
+			i = calc_energy_gain(p_ptr->state.p_speed) * 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->state.regenerate) i += 30;
@@ -3657,6 +3660,9 @@ void play_game(void)
 	/* Start with normal object generation mode */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
 
+	/* Start with the item_tester_swap variable as true */
+	item_tester_swap = TRUE;
+
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
 
@@ -3668,7 +3674,6 @@ void play_game(void)
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
-
 
 	/* Process */
 	while (TRUE)

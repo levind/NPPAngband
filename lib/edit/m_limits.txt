@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:6.1.0
+V:7.0.0
 
 
 
@@ -51,6 +51,8 @@ M:V:61
 # Maximum number of player races
 M:P:8
 
+
+# For Moria only, this number is also hard-coded in player.h, and will need to be changed if changed here.
 # Maximum number of player classes
 M:C:6
 
@@ -58,7 +60,7 @@ M:C:6
 M:H:128
 
 # Maximum number of owners per store
-M:B:4
+M:B:3
 
 # Maximum number of quests (including a slot for random quests)
 M:Q:2

@@ -1831,6 +1831,9 @@ static int inven_drain(int dam)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Ignore the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/*
 		 * No messages needed.
 		 * We do not notice this with objects sitting on the ground.
@@ -2535,16 +2538,28 @@ bool apply_disenchant(int mode)
 	char o_name[80];
 
 	/* Pick a random slot */
-	switch (randint(8))
+	/* Ignore the swap weapon */
+	if (adult_swap_weapons) switch (randint(7))
 	{
-		case 1: t = INVEN_WIELD; break;
-		case 2: t = INVEN_BOW; break;
-		case 3: t = INVEN_BODY; break;
-		case 4: t = INVEN_OUTER; break;
-		case 5: t = INVEN_ARM; break;
-		case 6: t = INVEN_HEAD; break;
-		case 7: t = INVEN_HANDS; break;
-		case 8: t = INVEN_FEET; break;
+		case 1: {t = INVEN_WIELD; break;}
+		case 2: {t = INVEN_BODY; break;}
+		case 3: {t = INVEN_OUTER; break;}
+		case 4: {t = INVEN_ARM; break;}
+		case 5: {t = INVEN_HEAD; break;}
+		case 6: {t = INVEN_HANDS; break;}
+		default:{t = INVEN_FEET; break;}
+	}
+
+	else switch (randint(8))
+	{
+		case 1: {t = INVEN_WIELD; break;}
+		case 2: {t = INVEN_BOW; break;}
+		case 3: {t = INVEN_BODY; break;}
+		case 4: {t = INVEN_OUTER; break;}
+		case 5: {t = INVEN_ARM; break;}
+		case 6: {t = INVEN_HEAD; break;}
+		case 7: {t = INVEN_HANDS; break;}
+		default:{t = INVEN_FEET; break;}
 	}
 
 	/* Get the item */
@@ -4066,6 +4081,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				do_kill = TRUE;
 				kill_art = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
+				break;
 			}
 
 			case GF_BWATER:
@@ -5167,6 +5183,8 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			note_dies = MON_MSG_BURIED_ROCK;
+
+			break;
 		}
 
 
@@ -6730,6 +6748,12 @@ static bool project_x(int who, int y, int x, int dam, int typ, u32b project_flg)
 
 	/*We can't see this square*/
 	if (!player_can_see_bold(y, x)) obvious = FALSE;
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Allow traps, but that's all */
+		if (typ != GF_MAKE_TRAP) return FALSE;
+	}
 
 	/*
 	 * Apply bonuses/penalties from terrain, only if damage doesn't come

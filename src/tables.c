@@ -57,6 +57,30 @@ const char hexsym[16] =
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
+const byte moria_class_level_adj[MORIA_MAX_CLASS][MORIA_MAX_LEV_ADJ] =
+{
+/*	       bth    bthb   device  disarm   save/misc hit  */
+/* Warrior */ {	4,	4,	2,	2,	3 },
+/* Mage    */ { 2,	2,	4,	3,	3 },
+/* Priest  */ { 2,	2,	4,	3,	3 },
+/* Rogue   */ { 3,	4,	3,	4,	3 },
+/* Ranger  */ { 3,	4,	3,	3,	3 },
+/* Paladin */ { 3,	3,	3,	2,	3 }
+};
+
+/* used to calculate the number of blows the player gets in combat */
+const byte moria_blows_table[MORIA_MAX_STR_ADJ][MORIA_MAX_DEX_ADJ] =
+{
+/* STR/W:	   9  18  67 107 117 118   : DEX */
+/* <2 */	{  1,  1,  1,  1,  1,  1 },
+/* <3 */	{  1,  1,  1,  1,  2,  2 },
+/* <4 */	{  1,  1,  1,  2,  2,  3 },
+/* <5 */	{  1,  1,  2,  2,  3,  3 },
+/* <7 */	{  1,  2,  2,  3,  3,  4 },
+/* <9 */	{  1,  2,  2,  3,  4,  4 },
+/* >9 */	{  2,  2,  3,  3,  4,  4 }
+};
+
 
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
@@ -336,7 +360,6 @@ const s16b adj_chr_charm[] =
 	13	/* 18/210-18/219 */,
 	15	/* 18/220+ */
 };
-
 
 
 /*
@@ -1169,7 +1192,18 @@ const byte blows_table[12][12] =
  * the (compiled out) small random energy boost code.  It may
  * also tend to cause more "clumping" at high speeds.
  */
-const byte extract_energy[200] =
+
+const byte extract_energy_nppmoria[6] =
+{
+	2,  /* 9 speed - slow + temporary slow */
+	5,  /* 10 speed - slow */
+	10, /* 11 speed - normal speed */
+	20, /* 12 speed - +1 */
+	40, /* 13 speed - +2 */
+	80, /* 14 speed - +3  */
+};
+
+const byte extract_energy_nppangband[200] =
 {
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -2163,7 +2197,7 @@ option_entry options[OPT_MAX] =
 	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
 	{"birth_money",             "Birth: Start with more money and no equipment",FALSE },/* OPT_birth_money */
 	{"birth_simple_dungeons",   "Birth: Prevent unusual terrains or dungeons",	FALSE },/* OPT_birth_birth_simple_dungeons */
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_swap_weapons",   	"Birth: Replace bow slot with swap weapon slot",	FALSE },/* OPT_birth_swap_weapons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2227,7 +2261,7 @@ option_entry options[OPT_MAX] =
 	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
 	{"adult_birth_money",      	"Adult: Start with more money and no equipment",FALSE },/* OPT_adult_birth_money*/
 	{"adult_simple_dungeons",   "Adult: Prevent unusual terrains or dungeons",	FALSE },/* OPT_adult_birth_simple_dungeons */
-	{NULL,NULL,FALSE},/* xxx */
+	{"adult_swap_weapons",   	"Adult: Replace bow slot with swap weapon slot",	FALSE },/* OPT_adult_swap_weapons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -3293,8 +3327,22 @@ cptr roguelike_home_letters =  "acfhmnoqruvyz13456790ABD";
 cptr standard_equip_letters =  "abcdefghijklmnopqrstuvw";
 cptr roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
 
+const brands_structure brands_info_nppangband[10] =
+{
+	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
+	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
+	{TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+};
 
-const slays_structure slays_info[11] =
+
+const slays_structure slays_info_nppangband[11] =
 {
 	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
 	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
@@ -3310,23 +3358,33 @@ const slays_structure slays_info[11] =
 
 };
 
-
-const brands_structure brands_info[10] =
+/*
+ * This table is a hack, as it works differently than brands info for Angband.
+ * Only creatures who are succeptible to the element take extra damage.
+ */
+const slays_structure brands_info_nppmoria[4] =
 {
-	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
-	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
-	{TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+	{TR1_BRAND_FIRE, 2, RF3_HURT_FIRE, "are susceptible to fire"},
+	{TR1_BRAND_COLD, 2, RF3_HURT_COLD, "are susceptible to cold"},
+	{TR1_BRAND_ACID, 2, RF3_HURT_ACID, "are susceptible to acid"},
+	{TR1_BRAND_POIS, 2, RF3_HURT_POIS, "are susceptible to poison"},
 };
 
-const mon_susceptibility_struct mon_suscept[2] =
+
+const slays_structure slays_info_nppmoria[4] =
+{
+	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
+	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
+	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
+	{TR1_SLAY_DRAGON, 4, RF3_DRAGON, 	"dragons"},
+};
+
+
+
+const mon_susceptibility_struct mon_suscept[4] =
 {
 	{TR1_BRAND_FIRE, RF3_HURT_FIRE, "fire"},
 	{TR1_BRAND_COLD, RF3_HURT_COLD, "cold"},
+	{TR1_BRAND_ACID, RF3_HURT_ACID, "acid"},
+	{TR1_BRAND_POIS, RF3_HURT_COLD, "poison"},
 };

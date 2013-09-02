@@ -81,7 +81,7 @@ static command_type cmd_action[] =
 	{ "Open a door or a chest",     'o', CMD_NULL, textui_cmd_open },
 	{ "Close a door",               'c', CMD_NULL, textui_cmd_close },
 	{ "Jam a door shut",            'j', CMD_NULL, textui_cmd_spike },
-	{ "Bash a door open",           'B', CMD_NULL, textui_cmd_bash },
+	{ "Bash a monster or door",	    'B', CMD_NULL, textui_cmd_bash },
 	{ "Make a monster trap",		'O', CMD_NULL, textui_cmd_make_trap},
 	{ "Steal from a monster",		'P', CMD_NULL, textui_cmd_steal}
 };
@@ -111,6 +111,7 @@ static command_type cmd_item_manage[] =
 	{ "Display inventory listing", 'i', CMD_NULL, do_cmd_inven },
 	{ "Pick up objects",           'g', CMD_PICKUP, NULL },
 	{ "Wear/wield an item",        'w', CMD_NULL, textui_cmd_wield },
+	{ "Swap weapons",              'x', CMD_NULL, textui_cmd_swap_weapon },
 	{ "Take/unwield off an item",  't', CMD_NULL, textui_cmd_takeoff },
 	{ "Drop an item",              'd', CMD_NULL, textui_cmd_drop },
 	{ "Destroy an item",           'k', CMD_NULL, textui_cmd_destroy },
@@ -118,6 +119,7 @@ static command_type cmd_item_manage[] =
 	{ "Inscribe an object",        '{', CMD_NULL, textui_cmd_inscribe },
 	{ "Uninscribe an object",      '}', CMD_NULL, textui_cmd_uninscribe },
 	{ "Use item",            	   '|', CMD_NULL, cmd_use_item }
+
 };
 
 /* Information access commands */
@@ -172,7 +174,7 @@ static command_type cmd_hidden[] =
 	{ "Center map",              KTRL('L'), CMD_NULL, do_cmd_center_map },
 
 	{ "Toggle wizard mode",  KTRL('W'), CMD_NULL, do_cmd_wizard },
-	{ "Repeat previous command",  KTRL('V'), CMD_REPEAT, NULL },
+	{ "Repeat previous command",  'n', CMD_REPEAT, NULL },
 
 #ifdef ALLOW_DEBUG
 	{ "Debug mode commands", KTRL('A'), CMD_NULL, do_cmd_try_debug },
@@ -364,7 +366,7 @@ static void show_commands(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			nearby_monster = TRUE;
-
+			can_bash = TRUE;
 			if (cp_ptr->flags & CF_ROGUE_COMBAT) can_steal = TRUE;
 		}
 		else if (cave_passable_bold(y,x))
@@ -695,8 +697,8 @@ static void do_cmd_mouseclick(void)
 		case SIDEBAR_RACE:
 		{
 			char buf[80];
-
-			strnfmt(buf, sizeof(buf), "raceclas.txt#%s", p_name + rp_ptr->name);
+			if (game_mode == GAME_NPPMORIA) strnfmt(buf, sizeof(buf), "m_raceclas.txt#%s", p_name + rp_ptr->name);
+			else strnfmt(buf, sizeof(buf), "raceclas.txt#%s", p_name + rp_ptr->name);
 			screen_save();
 			show_file(buf, NULL, 0, 0);
 			screen_load();
@@ -705,8 +707,8 @@ static void do_cmd_mouseclick(void)
 		case SIDEBAR_CLASS:
 		{
 			char buf[80];
-
-			strnfmt(buf, sizeof(buf), "raceclas.txt#%s", c_name + cp_ptr->name);
+			if (game_mode == GAME_NPPMORIA) strnfmt(buf, sizeof(buf), "m_raceclas.txt#%s", c_name + cp_ptr->name);
+			else strnfmt(buf, sizeof(buf), "raceclas.txt#%s", c_name + cp_ptr->name);
 			screen_save();
 			show_file(buf, NULL, 0, 0);
 			screen_load();
