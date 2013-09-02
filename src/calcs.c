@@ -21,6 +21,92 @@
 
 
 
+/* Returns a character's adjustment to armor class	 -JWT-	 */
+static int moria_toac_adj()
+{
+	int stat;
+
+	stat = p_ptr->state.stat_use[A_DEX];
+	if	  (stat <   4)	return(-4);
+	else if (stat ==  4)	return(-3);
+	else if (stat ==  5)	return(-2);
+	else if (stat ==  6)	return(-1);
+	else if (stat <  15)	return( 0);
+	else if (stat <  18)	return( 1);
+	else if (stat <  59)	return( 2);
+	else if (stat <  94)	return( 3);
+	else if (stat <= 117)	return( 4);
+	else			return( 5);
+}
+
+
+/* Returns a character's adjustment to damage		 -JWT-	 */
+static int moria_todam_adj()
+{
+	int stat = p_ptr->state.stat_use[A_STR];
+	if	  (stat <   4)	return(-2);
+	else if (stat <   5)	return(-1);
+	else if (stat <  16)	return( 0);
+	else if (stat <  17)	return( 1);
+	else if (stat <  18)	return( 2);
+	else if (stat <  94)	return( 3);
+	else if (stat < 109)	return( 4);
+	else if (stat <= 117)	return( 5);
+	else return( 6);
+}
+
+/* Returns a character's adjustment to hit.		 -JWT-	 */
+static int moria_tohit_adj()
+{
+	int total;
+
+	/* First do dexterity adjustments */
+	int stat = p_ptr->state.stat_use[A_DEX];
+	if	  (stat <   4)		total = -3;
+	else if (stat <   6)	total = -2;
+	else if (stat <   8)	total = -1;
+	else if (stat <  16)	total =	 0;
+	else if (stat <  17)	total =	 1;
+	else if (stat <  18)	total =	 2;
+	else if (stat <  69)	total =	 3;
+	else if (stat <= 117)	total =	 4;
+	else			total =	 5;
+
+	/* Now do strength adjustments */
+	stat = p_ptr->state.stat_use[A_STR];
+	if	  (stat <   4)	total -= 3;
+	else if (stat <   5)	total -= 2;
+	else if (stat <   7)	total -= 1;
+	else if (stat <  18)	total -= 0;
+	else if (stat <  94)	total += 1;
+	else if (stat < 109)	total += 2;
+	else if (stat <= 117)	total += 3;
+	else			total += 4;
+	return(total);
+}
+
+
+
+
+/* Adjustment for wisdom/intelligence in moria */
+
+int stat_adj_moria(int stat)
+{
+
+
+	int value = p_ptr->state.stat_use[stat];
+
+	if (value > 117) 		return(7);
+	else if (value > 107)	return(6);
+	else if (value > 87)	return(5);
+	else if (value > 67)	return(4);
+	else if (value > 17)	return(3);
+	else if (value > 14)	return(2);
+	else if (value > 7)		return(1);
+	else	return(0);
+}
+
+
 
 /*
  * Calculate number of spells player should have, and forget,
@@ -59,8 +145,18 @@ void calc_spells(void)
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
+	if (game_mode == GAME_NPPMORIA)
+	{
+		int stat_adj = stat_adj_moria(MORIA_SPELL_STAT);
+		if (stat_adj == 7) 		percent_spells = 250;
+		else if (stat_adj == 6) percent_spells = 200;
+		else if (stat_adj >= 4) percent_spells = 200;
+		else if (stat_adj >= 1) percent_spells = 100;
+		else 					percent_spells = 0;
+	}
+
 	/* Number of 1/100 spells per level */
-	percent_spells = adj_mag_study[SPELL_STAT_SLOT];
+	else percent_spells = adj_mag_study[SPELL_STAT_SLOT];
 
 	/* Extract total allowed spells (rounded up) */
 	num_allowed = (((percent_spells * levels) + 50) / 100);
@@ -254,7 +350,22 @@ static void calc_mana(void)
 	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
 	if (levels > 0)
 	{
-		msp = 1 + (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 100;
+		long int mana_percent = adj_mag_mana[SPELL_STAT_SLOT];
+
+		if (game_mode == GAME_NPPMORIA)
+		{
+			int stat_adj = stat_adj_moria(MORIA_SPELL_STAT);
+			if (stat_adj == 7) 		mana_percent = 400;
+			else if (stat_adj == 6) mana_percent = 300;
+			else if (stat_adj == 5) mana_percent = 250;
+			else if (stat_adj == 4) mana_percent = 200;
+			else if (stat_adj == 3) mana_percent = 150;
+			else if (stat_adj >= 1) mana_percent = 100;
+			else 					mana_percent = 0;
+		}
+
+
+		msp = 1 + mana_percent * levels / 100;
 	}
 	else
 	{
@@ -377,14 +488,34 @@ static void calc_hitpoints(void)
 	long bonus;
 	int mhp;
 
-	/* Get "1/100th hitpoint bonus per level" value */
-	bonus = adj_con_mhp[p_ptr->state.stat_ind[A_CON]];
+	if (game_mode == GAME_NPPMORIA)
+	{
+		int con = p_ptr->state.stat_use[A_CON];
+
+		if (con < 7) 			bonus = -700;
+		else if (con < 17)		bonus = 0;
+		else if (con ==  17)	bonus = 100;
+		else if (con <  94)		bonus = 200;
+		else if (con <= 117)	bonus = 300;
+		else					bonus = 400;
+	}
+	else
+	{
+		/* Get "1/100th hitpoint bonus per level" value */
+		bonus = adj_con_mhp[p_ptr->state.stat_ind[A_CON]];
+	}
 
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 100);
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (p_ptr->timed[TMD_HERO]) mhp += 10;
+		if (p_ptr->timed[TMD_SHERO]) mhp += 15;
+	}
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -429,6 +560,9 @@ static void calc_torch(void)
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
+
+		/* Don't count the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
 
 		/* Examine actual lites */
 		if (o_ptr->tval == TV_LIGHT)
@@ -524,6 +658,9 @@ static void calc_nativity(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
+		/* Don't count the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
@@ -616,6 +753,9 @@ static void calc_stealth(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Don't count the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3, &native);
 
@@ -655,6 +795,23 @@ static void calc_stealth(void)
 			}
 		}
 	}
+}
+
+/* return energy gain for a player or monster */
+byte calc_energy_gain(byte speed)
+{
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Boundry control */
+		if (speed < NPPMORIA_LOWEST_SPEED) speed = NPPMORIA_LOWEST_SPEED;
+		else if (speed > NPPMORIA_MAX_SPEED) speed = NPPMORIA_MAX_SPEED;
+
+		return (extract_energy_nppmoria[speed - NPPMORIA_LOWEST_SPEED]);
+	}
+
+	if (speed > 199) speed = 199;
+
+	return (extract_energy_nppangband[speed]);
 }
 
 
@@ -712,6 +869,49 @@ static void calc_inven_cnt(void)
 }
 
 
+
+/* Weapon weight VS strength and dexterity	*/
+static int calc_blows_moria(const object_type *o_ptr, player_state *new_state)
+{
+	int adj_weight;
+	int str_index, dex_index;
+	int str = new_state->stat_use[A_STR];
+	int dex = new_state->stat_use[A_DEX];
+
+	/* Boundry control */
+	if (str > 118) str = 118;
+	if (dex  > 118) dex = 118;
+
+	if ((str * 15) < o_ptr->weight)
+	{
+		return 1;
+	}
+	else
+    {
+
+		/* First figure out the dex index */
+		if      (dex < 10)	 dex_index = 0;
+		else if (dex<  19)	 dex_index = 1;
+		else if (dex < 68)	 dex_index = 2;
+		else if (dex < 108)	 dex_index = 3;
+		else if (dex < 118)	 dex_index = 4;
+		else		 dex_index = 5;
+
+		/* Now do the str_index */
+
+		adj_weight = ((str * 10) / o_ptr->weight);
+		if      (adj_weight < 2)	str_index = 0;
+		else if (adj_weight < 3)	str_index = 1;
+		else if (adj_weight < 4)	str_index = 2;
+		else if (adj_weight < 5)	str_index = 3;
+		else if (adj_weight < 7)	str_index = 4;
+		else if (adj_weight < 9)	str_index = 5;
+		else			str_index = 6;
+		return moria_blows_table[str_index][dex_index];
+    }
+}
+
+
 /*
  * Calculate the number of attacks a player gets with a weapon per round.
  * Does not factor in extra attacks from weapon flags
@@ -721,6 +921,11 @@ int calc_blows(const object_type *o_ptr, player_state *new_state)
 	int str_index, dex_index, str_ind, dex_ind;
 
 	int divide_by, new_blows;
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		return calc_blows_moria(o_ptr, new_state);
+	}
 
 	str_ind = new_state->stat_ind[A_STR];
 	dex_ind = new_state->stat_ind[A_DEX];
@@ -850,7 +1055,8 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	/*** Reset ***/
 
 	/* Reset player speed */
-	new_state->p_speed = 110;
+	if (game_mode == GAME_NPPMORIA) new_state->p_speed = NPPMORIA_NORMAL_SPEED;
+	else new_state->p_speed = 110;
 
 	/* Reset "blow" info */
 	new_state->num_blow = 1;
@@ -1018,6 +1224,9 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Don't count the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/* Extract the item flags */
 		if (id_only) 	object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
 		else 			object_flags(o_ptr, &f1, &f2, &f3, &fn);
@@ -1043,7 +1252,16 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		if (f1 & (TR1_TUNNEL)) 		new_state->skills[SKILL_DIGGING] += (o_ptr->pval * 20);
 
 		/* Affect speed */
-		if (f1 & (TR1_SPEED)) 		new_state->p_speed += o_ptr->pval;
+		if (f1 & (TR1_SPEED))
+		{
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (o_ptr->pval > 0) new_state->p_speed++;
+				else if (o_ptr->pval < 0) new_state->p_speed--;
+			}
+			else new_state->p_speed += o_ptr->pval;
+		}
+
 
 		/* Affect blows */
 		if (f1 & (TR1_BLOWS)) 		extra_blows += o_ptr->pval;
@@ -1185,11 +1403,23 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);
 
+		/* Stats max out at 118 in Moria */
+		if (game_mode == GAME_NPPMORIA)
+		{
+			if (top > 117) top = 118;
+		}
+
 		/* Save the new value */
 		new_state->stat_top[i] = top;
 
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], add);
+
+		/* Stats max out at 118 in Moria */
+		if (game_mode == GAME_NPPMORIA)
+		{
+			if (use > 117) use = 118;
+		}
 
 		/* Save the new value */
 		new_state->stat_use[i] = use;
@@ -1206,6 +1436,7 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		/* Save the new index */
 		new_state->stat_ind[i] = ind;
 	}
+
 
 
 	/*** Temporary flags ***/
@@ -1268,13 +1499,15 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	/* Temporary "fast" */
 	if (p_ptr->timed[TMD_FAST])
 	{
-		new_state->p_speed += 10;
+		if (game_mode == GAME_NPPMORIA) new_state->p_speed++;
+		else new_state->p_speed += 10;
 	}
 
 	/* Temporary "slow" */
 	if (p_ptr->timed[TMD_SLOW])
 	{
-		new_state->p_speed -= 10;
+		if (game_mode == GAME_NPPMORIA) new_state->p_speed--;
+		else new_state->p_speed -= 10;
 	}
 
 	/* Temporary see invisible */
@@ -1308,45 +1541,93 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	i = weight_limit();
 
 	/* Apply "encumbrance" from weight */
-	if (j > i / 2) new_state->p_speed -= ((j - (i / 2)) / (i / 10));
+	if (j > i / 2)
+	{
+		if (game_mode == GAME_NPPMORIA) new_state->p_speed--;
+		else new_state->p_speed -= ((j - (i / 2)) / (i / 10));
+	}
 
 	/* Bloating slows the player down (a little) */
-	if (p_ptr->food >= PY_FOOD_MAX) new_state->p_speed -= 10;
+	if (p_ptr->food >= PY_FOOD_MAX)
+	{
+		if (game_mode == GAME_NPPMORIA) new_state->p_speed--;
+		else new_state->p_speed -= 10;
+	}
 
 	/* Searching slows the player down */
-	if (p_ptr->searching) new_state->p_speed -= 10;
+	if (p_ptr->searching)
+	{
+		if (game_mode == GAME_NPPMORIA) new_state->p_speed--;
+		else new_state->p_speed -= 10;
+	}
 
 	/* Sanity check on extreme speeds */
-	if (new_state->p_speed < 0) 		new_state->p_speed = 0;
-	if (new_state->p_speed > 199) 		new_state->p_speed = 199;
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (new_state->p_speed < NPPMORIA_LOWEST_SPEED) 		new_state->p_speed = NPPMORIA_LOWEST_SPEED;
+		else if (new_state->p_speed > NPPMORIA_MAX_SPEED) 		new_state->p_speed = NPPMORIA_MAX_SPEED;
+	}
+	else
+	{
+		if (new_state->p_speed < 0) 		new_state->p_speed = 0;
+		if (new_state->p_speed > 199) 		new_state->p_speed = 199;
+	}
+
 
 
 	/*** Apply modifier bonuses ***/
 
-	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	new_state->to_a += ((int)(adj_dex_ta[new_state->stat_ind[A_DEX]]) - 128);
-	new_state->to_d += ((int)(adj_str_td[new_state->stat_ind[A_STR]]) - 128);
-	new_state->to_h += ((int)(adj_dex_th[new_state->stat_ind[A_DEX]]) - 128);
-	new_state->to_h += ((int)(adj_str_th[new_state->stat_ind[A_STR]]) - 128);
 
-	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	new_state->dis_to_a += ((int)(adj_dex_ta[new_state->stat_ind[A_DEX]]) - 128);
-	new_state->dis_to_d += ((int)(adj_str_td[new_state->stat_ind[A_STR]]) - 128);
-	new_state->dis_to_h += ((int)(adj_dex_th[new_state->stat_ind[A_DEX]]) - 128);
-	new_state->dis_to_h += ((int)(adj_str_th[new_state->stat_ind[A_STR]]) - 128);
 
 
 	/*** Modify skills ***/
 
-	/* Affect Skill -- disarming (DEX and INT) */
-	new_state->skills[SKILL_DISARM] += adj_dex_dis[new_state->stat_ind[A_DEX]];
-	new_state->skills[SKILL_DISARM] += adj_int_dis[new_state->stat_ind[A_INT]];
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Affect Skill -- magic devices (INT) */
+		new_state->skills[SKILL_DEVICE] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_DEVICE] * p_ptr->lev / 3);
+		new_state->skills[SKILL_DISARM] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_DISARM] * p_ptr->lev / 3);
+		new_state->skills[SKILL_TO_HIT_MELEE] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_BTH] * p_ptr->lev);
+		new_state->skills[SKILL_SAVE] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_SAVE] * p_ptr->lev / 3);
+		/* Throwing and bows used the same factor in Moria */
+		new_state->skills[SKILL_TO_HIT_BOW] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_BTHB] * p_ptr->lev);
+		new_state->skills[SKILL_TO_HIT_THROW] += (moria_class_level_adj[p_ptr->pclass][MORIA_CLA_BTHB] * p_ptr->lev);
 
-	/* Affect Skill -- magic devices (INT) */
-	new_state->skills[SKILL_DEVICE] += adj_int_dev[new_state->stat_ind[A_INT]];
+		new_state->to_a += moria_toac_adj();
+		new_state->to_d += moria_todam_adj();
+		new_state->to_h += moria_tohit_adj();
 
-	/* Affect Skill -- saving throw (WIS) */
-	new_state->skills[SKILL_SAVE] += adj_wis_sav[new_state->stat_ind[A_WIS]];
+		new_state->dis_to_a += moria_toac_adj();
+		new_state->dis_to_d += moria_todam_adj();
+		new_state->dis_to_h += moria_tohit_adj();
+
+	}
+	else
+	{
+		/* Affect Skill -- disarming (DEX and INT) */
+		new_state->skills[SKILL_DISARM] += adj_dex_dis[new_state->stat_ind[A_DEX]];
+		new_state->skills[SKILL_DISARM] += adj_int_dis[new_state->stat_ind[A_INT]];
+
+		/* Affect Skill -- magic devices (INT) */
+		new_state->skills[SKILL_DEVICE] += adj_int_dev[new_state->stat_ind[A_INT]];
+
+		/* Affect Skill -- saving throw (WIS) */
+		new_state->skills[SKILL_SAVE] += adj_wis_sav[new_state->stat_ind[A_WIS]];
+
+		/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
+		new_state->to_a += ((int)(adj_dex_ta[new_state->stat_ind[A_DEX]]) - 128);
+		new_state->to_d += ((int)(adj_str_td[new_state->stat_ind[A_STR]]) - 128);
+		new_state->to_h += ((int)(adj_dex_th[new_state->stat_ind[A_DEX]]) - 128);
+		new_state->to_h += ((int)(adj_str_th[new_state->stat_ind[A_STR]]) - 128);
+
+		/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
+		new_state->dis_to_a += ((int)(adj_dex_ta[new_state->stat_ind[A_DEX]]) - 128);
+		new_state->dis_to_d += ((int)(adj_str_td[new_state->stat_ind[A_STR]]) - 128);
+		new_state->dis_to_h += ((int)(adj_dex_th[new_state->stat_ind[A_DEX]]) - 128);
+		new_state->dis_to_h += ((int)(adj_str_th[new_state->stat_ind[A_STR]]) - 128);
+	}
+
+
 
 	/* Affect Skill -- digging (STR) */
 	new_state->skills[SKILL_DIGGING] += adj_str_dig[new_state->stat_ind[A_STR]];
@@ -1387,95 +1668,104 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	/* Examine the "current bow" */
 	o_ptr = &calc_inven[INVEN_BOW];
 
+	/* Don't count the swap weapon */
+	if (adult_swap_weapons)
+	{
+		o_ptr = &calc_inven[INVEN_MAIN_WEAPON];
+	}
+
 	/* Assume not heavy */
 	new_state->heavy_shoot = FALSE;
 
-	/* It is hard to hold a heavy bow */
-	if (hold < o_ptr->weight / 10)
+	if (obj_is_bow(o_ptr))
 	{
-		/* Hard to wield a heavy bow */
-		new_state->to_h += 2 * (hold - o_ptr->weight / 10);
-		new_state->dis_to_h += 2 * (hold - o_ptr->weight / 10);
-
-		/* Heavy Bow */
-		new_state->heavy_shoot = TRUE;
-	}
-
-	/* Analyze launcher */
-	if (o_ptr->k_idx)
-	{
-		/* Get to shoot */
-		new_state->num_fire = 1;
-
-		/* Analyze the launcher */
-		switch (o_ptr->sval)
+		/* It is hard to hold a heavy bow */
+		if (hold < o_ptr->weight / 10)
 		{
-			/* Sling and ammo */
-			case SV_SLING:
-			{
-				new_state->ammo_tval = TV_SHOT;
-				new_state->ammo_mult = 2;
+			/* Hard to wield a heavy bow */
+			new_state->to_h += 2 * (hold - o_ptr->weight / 10);
+			new_state->dis_to_h += 2 * (hold - o_ptr->weight / 10);
 
-				/*Hack - Rogues get increased skill with slings*/
-				if (cp_ptr->flags & CF_ROGUE_COMBAT)
+			/* Heavy Bow */
+			new_state->heavy_shoot = TRUE;
+		}
+
+		/* Analyze launcher */
+		if (o_ptr->k_idx)
+		{
+			/* Get to shoot */
+			new_state->num_fire = 1;
+
+			/* Analyze the launcher */
+			switch (o_ptr->sval)
+			{
+				/* Sling and ammo */
+				case SV_SLING:
 				{
-					new_state->skills[SKILL_TO_HIT_BOW] += 3 + p_ptr->lev / 4;
+					new_state->ammo_tval = TV_SHOT;
+					new_state->ammo_mult = 2;
+
+					/*Hack - Rogues get increased skill with slings*/
+					if (cp_ptr->flags & CF_ROGUE_COMBAT)
+					{
+						new_state->skills[SKILL_TO_HIT_BOW] += 3 + p_ptr->lev / 4;
+					}
+					break;
 				}
-				break;
+
+				/* Short Bow and Arrow */
+				case SV_SHORT_BOW:
+				{
+					new_state->ammo_tval = TV_ARROW;
+					new_state->ammo_mult = 2;
+					break;
+				}
+
+				/* Long Bow and Arrow */
+				case SV_LONG_BOW:
+				{
+					new_state->ammo_tval = TV_ARROW;
+					new_state->ammo_mult = 3;
+					break;
+				}
+
+				/* Light Crossbow and Bolt */
+				case SV_LIGHT_XBOW:
+				{
+					new_state->ammo_tval = TV_BOLT;
+					new_state->ammo_mult = 3;
+					break;
+				}
+
+				/* Heavy Crossbow and Bolt */
+				case SV_HEAVY_XBOW:
+				{
+					new_state->ammo_tval = TV_BOLT;
+					new_state->ammo_mult = 4;
+					break;
+				}
 			}
 
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
+			/* Apply special flags */
+			if (o_ptr->k_idx && !new_state->heavy_shoot)
 			{
-				new_state->ammo_tval = TV_ARROW;
-				new_state->ammo_mult = 2;
-				break;
+				/* Extra shots */
+				new_state->num_fire += extra_shots;
+
+				/* Extra might */
+				new_state->ammo_mult += extra_might;
+
+				/* Hack -- Rangers love Bows, rogues love slings */
+				if (((cp_ptr->flags & CF_EXTRA_SHOT) && (new_state->ammo_tval == TV_SHOT)) ||
+						((cp_ptr->flags & CF_EXTRA_ARROW) && (new_state->ammo_tval == TV_ARROW)))
+				{
+					if (p_ptr->lev >= LEV_EXTRA_COMBAT) new_state->num_fire++;
+				}
 			}
 
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				new_state->ammo_tval = TV_ARROW;
-				new_state->ammo_mult = 3;
-				break;
-			}
-
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
-			{
-				new_state->ammo_tval = TV_BOLT;
-				new_state->ammo_mult = 3;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{
-				new_state->ammo_tval = TV_BOLT;
-				new_state->ammo_mult = 4;
-				break;
-			}
+			/* Require at least one shot */
+			if (new_state->num_fire < 1) new_state->num_fire = 1;
 		}
-
-		/* Apply special flags */
-		if (o_ptr->k_idx && !new_state->heavy_shoot)
-		{
-			/* Extra shots */
-			new_state->num_fire += extra_shots;
-
-			/* Extra might */
-			new_state->ammo_mult += extra_might;
-
-			/* Hack -- Rangers love Bows, rogues love slings */
-			if (((cp_ptr->flags & CF_EXTRA_SHOT) && (new_state->ammo_tval == TV_SHOT)) ||
-				((cp_ptr->flags & CF_EXTRA_ARROW) && (new_state->ammo_tval == TV_ARROW)))
-			{
-				if (p_ptr->lev >= LEV_EXTRA_COMBAT) new_state->num_fire++;
-			}
-		}
-
-		/* Require at least one shot */
-		if (new_state->num_fire < 1) new_state->num_fire = 1;
 	}
 
 	/* Brigands get poison resistance */
@@ -1483,7 +1773,6 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	{
 		new_state->resist_pois = TRUE;
 	}
-
 
 	/*** Analyze weapon ***/
 
@@ -1507,25 +1796,6 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 	/* Normal weapons */
 	if (o_ptr->k_idx && !new_state->heavy_wield)
 	{
-		int str_index, dex_index;
-
-		int divide_by;
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		divide_by = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[new_state->stat_ind[A_STR]] * cp_ptr->att_multiply / divide_by);
-
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[new_state->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
 		/* Use the blows table */
 		new_state->num_blow = calc_blows(o_ptr, new_state);
 
@@ -1536,7 +1806,7 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		new_state->skills[SKILL_DIGGING] += (o_ptr->weight / 10);
 
 		/*add extra attack for those who have the flag*/
-		if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
+		if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK) && obj_is_weapon(o_ptr))
 			new_state->num_blow += 1;
 	}
 
@@ -1654,8 +1924,10 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		/* default: SV_SHORT_BOW or SV_LONG_BOW	*/
 		cptr launcher = "bow";
 
+		int bow_slot = (adult_swap_weapons ? INVEN_MAIN_WEAPON : INVEN_BOW);
+
 		/* Examine the "current bow" */
-		object_kind *k_ptr = &k_info[calc_inven[INVEN_BOW].k_idx];
+		object_kind *k_ptr = &k_info[calc_inven[bow_slot].k_idx];
 
 		/* Make sure we are calling the launcher by the right name */
 		if (k_ptr->sval == SV_SLING) launcher = "sling";
@@ -1667,31 +1939,36 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 		{
 			msg_print(format("You have trouble aiming such a heavy %s.", launcher));
 		}
-		else if (calc_inven[INVEN_BOW].k_idx)
+		else if (calc_inven[bow_slot].k_idx)
 		{
 			msg_print(format("You have no trouble aiming your %s.", launcher));
 		}
 		else
 		{
-			msg_print(format("You feel relieved to put down your heavy %s.", launcher));
+			msg_print(format("You feel relieved to stop using your heavy %s.", launcher));
 		}
 	}
 
 	/* Take note when "heavy weapon" changes */
 	if (old_heavy_wield != new_state->heavy_wield)
 	{
+		char o_name[80];
+		/* Examine the "current weapon" */
+		o_ptr = &calc_inven[INVEN_WIELD];
+		object_desc(o_name, sizeof(o_name), o_ptr, (ODESC_BASE));
+
 		/* Message */
 		if (new_state->heavy_wield)
 		{
-			msg_print("You have trouble wielding such a heavy weapon.");
+			msg_print(format("You have trouble wielding such a heavy %s.", o_name));
 		}
 		else if (calc_inven[INVEN_WIELD].k_idx)
 		{
-			msg_print("You have no trouble wielding your weapon.");
+			msg_print(format("You have no trouble wielding your %s.", o_name));
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy weapon.");
+			msg_print(format("You feel relieved to stop wielding your heavy %s.", o_name));
 		}
 	}
 

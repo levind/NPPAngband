@@ -29,17 +29,12 @@
 static void cmd_game_nppangband(void *unused)
 {
 	game_mode = GAME_NPPANGBAND;
-/*
-	z_info->max_level = 50;
-	z_info->max_titles = z_info->max_level  / 5;*/
 }
 
 /* We are going to play NPPMoria*/
 static void cmd_game_nppmoria(void *unused)
 {
 	game_mode = GAME_NPPMORIA;
-/*
-	z_info->max_level = z_info->max_titles = PY_MAX_LEVEL_MORIA;*/
 }
 
 
@@ -785,7 +780,9 @@ static errr init_b_info(void)
 	/* Save a pointer to the parsing function */
 	b_head.parse_info_txt = parse_b_info;
 
-	err = init_info("shop_own", &b_head);
+
+	if (game_mode == GAME_NPPANGBAND) err = init_info("shop_own", &b_head);
+	else err = init_info("m_shop_own", &b_head);
 
 	/* Set the global variables */
 	b_info = b_head.info_ptr;
@@ -1466,8 +1463,18 @@ static errr init_alloc(void)
  */
 bool init_angband(void)
 {
+	
+	/* If we have a savefile, use that for game mode instead */
+	if (savefile[0])
+	{
+		load_gamemode();
+	}
+		
 	/* Which game are we playing? */
-	get_game_mode();
+	if (game_mode == 0)
+	{
+		get_game_mode();
+	}
 
 	event_signal(EVENT_ENTER_INIT);
 
@@ -1585,11 +1592,6 @@ bool init_angband(void)
 			return FALSE;
 		}
 	}
-
-	/* Not that everything is initialized, fill in some specifics for the game mode chosen. */
-	init_game_mode();
-
-	return (FALSE);
 }
 
 

@@ -229,12 +229,13 @@ void display_player_xtra_info(void)
 	int xdis, xdev, xsav, xstl;
 	byte likert_attr;
 
+	object_type object_type_body;
 	object_type *o_ptr;
+	object_type *i_ptr;
 
 	cptr desc;
 
 	char buf[160];
-
 
 	/* Upper middle */
 	col = 23;
@@ -288,6 +289,7 @@ void display_player_xtra_info(void)
 	/* Current Experience */
 	++row;
 	Term_putstr(col, row, -1, TERM_WHITE, "Cur Exp");
+
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
 		Term_putstr(col2, row, -1, TERM_L_GREEN,
@@ -304,7 +306,6 @@ void display_player_xtra_info(void)
 	Term_putstr(col, row, -1, TERM_WHITE, "Max Exp");
 	Term_putstr(col2, row, -1, TERM_L_GREEN,
 	            format("%10ld", p_ptr->max_exp));
-
 
 	/* Advance Experience */
 	++row;
@@ -410,15 +411,26 @@ void display_player_xtra_info(void)
 
 
 	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
+	if (adult_swap_weapons)
+	{
+		if (inventory[INVEN_MAIN_WEAPON].tval == TV_BOW) i_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+		/* A bow is not wielded, just set up a "dummy, blank" object and point to that */
+		else
+		{
+			i_ptr = &object_type_body;
+			object_wipe(i_ptr);
+		}
+	}
+	else i_ptr = &inventory[INVEN_BOW];
 
 	/* Base skill */
 	hit = p_ptr->state.dis_to_h;
 	dam = 0;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (object_known_p(i_ptr)) hit += i_ptr->to_h;
+	if (object_known_p(i_ptr)) dam += i_ptr->to_d;
 
 	/* hack, rogues are deadly with slings*/
 	if ((cp_ptr->flags & CF_ROGUE_COMBAT) && (p_ptr->state.ammo_tval == TV_SHOT))
@@ -426,7 +438,6 @@ void display_player_xtra_info(void)
 		hit += 3 + p_ptr->lev / 4;
 		dam += p_ptr->lev * 2 / 3;
 	}
-
 
 	/* Range attacks */
 	++row;
@@ -452,24 +463,31 @@ void display_player_xtra_info(void)
 	i = p_ptr->state.p_speed;
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
-	if (p_ptr->searching) i += 10;
+	if (p_ptr->searching) i += (game_mode == GAME_NPPMORIA ? 1 : 10);
 
 	/* Hack -- Visually "undo" temp speed */
-	if (p_ptr->timed[TMD_FAST]) i -= 10;
+	if (p_ptr->timed[TMD_FAST]) i -= (game_mode == GAME_NPPMORIA ? 1 : 10);
 
 	/* Hack -- Visually "undo" temp slowing */
-	if (p_ptr->timed[TMD_SLOW]) i += 10;
+	if (p_ptr->timed[TMD_SLOW]) i += (game_mode == GAME_NPPMORIA ? 1 : 10);
+
+	/* Boundry Control */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (i < NPPMORIA_LOWEST_SPEED) i = NPPMORIA_LOWEST_SPEED;
+		else if (i > NPPMORIA_MAX_SPEED) i = NPPMORIA_MAX_SPEED;
+	}
 
 	/* Fast */
-	if (i > 110)
+	if (i > (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
 	{
-		sprintf(buf, "+%d", (i - 110));
+		sprintf(buf, "+%d", (i - (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110)));
 	}
 
 	/* Slow */
-	else if (i < 110)
+	else if (i < (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
 	{
-		sprintf(buf, "-%d", (110 - i));
+		sprintf(buf, "-%d", ((game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110) - i));
 	}
 
 	else
@@ -492,13 +510,11 @@ void display_player_xtra_info(void)
 	col = 40;
 
 	/* Fighting Skill (with current weapon) */
-	o_ptr = &inventory[INVEN_WIELD];
 	tmp = p_ptr->state.to_h + o_ptr->to_h;
 	xthn = p_ptr->state.skills[SKILL_TO_HIT_MELEE] + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow) */
-	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->state.to_h + o_ptr->to_h;
+	tmp = p_ptr->state.to_h + i_ptr->to_h;
 	xthb = p_ptr->state.skills[SKILL_TO_HIT_BOW] + (tmp * BTH_PLUS_ADJ);
 
 	/* Basic abilities */
@@ -612,45 +628,46 @@ struct player_flag_record
 	byte set;				/* Which field this resistance is in { 1 2 3 } */
 	u32b res_flag;			/* resistance flag bit */
 	u32b im_flag;			/* corresponding immunity bit, if any */
+	bool moria_flag;		/* Is it used in Moria? */
 };
 
 static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 {
-	{ "rAcid",	2, TR2_RES_ACID,	TR2_IM_ACID},
-	{ "rElec",	2, TR2_RES_ELEC,	TR2_IM_ELEC},
-	{ "rFire",	2, TR2_RES_FIRE,	TR2_IM_FIRE},
-	{ "rCold",	2, TR2_RES_COLD,	TR2_IM_COLD},
-	{ "rPois",	2, TR2_RES_POIS,	TR2_IM_POIS},
-	{ "rFear",	2, TR2_RES_FEAR,	0},
-	{ "rLite",	2, TR2_RES_LIGHT,	0},
-	{ "rDark",	2, TR2_RES_DARK,	0},
+	{ "rAcid",	2, TR2_RES_ACID,	TR2_IM_ACID, TRUE},
+	{ "rElec",	2, TR2_RES_ELEC,	TR2_IM_ELEC, TRUE},
+	{ "rFire",	2, TR2_RES_FIRE,	TR2_IM_FIRE, TRUE},
+	{ "rCold",	2, TR2_RES_COLD,	TR2_IM_COLD, TRUE},
+	{ "rPois",	2, TR2_RES_POIS,	TR2_IM_POIS, FALSE},
+	{ "rFear",	2, TR2_RES_FEAR,	0, FALSE},
+	{ "rLite",	2, TR2_RES_LIGHT,	0, FALSE},
+	{ "rDark",	2, TR2_RES_DARK,	0, FALSE},
 
-	{ "rBlnd",	2, TR2_RES_BLIND,	0},
-	{ "rConf",	2, TR2_RES_CONFU,	0},
-	{ "Sound",	2, TR2_RES_SOUND,	0},
-	{ "Shard",	2, TR2_RES_SHARD,	0},
-	{ "Nexus",	2, TR2_RES_NEXUS,	0},
-	{ "Nethr",	2, TR2_RES_NETHR,	0},
-	{ "Chaos",	2, TR2_RES_CHAOS,	0},
-	{ "Disen",	2, TR2_RES_DISEN,	0},
+	{ "rBlnd",	2, TR2_RES_BLIND,	0, TRUE},
+	{ "rConf",	2, TR2_RES_CONFU,	0, FALSE},
+	{ "Sound",	2, TR2_RES_SOUND,	0, FALSE},
+	{ "Shard",	2, TR2_RES_SHARD,	0, FALSE},
+	{ "Nexus",	2, TR2_RES_NEXUS,	0, FALSE},
+	{ "Nethr",	2, TR2_RES_NETHR,	0, FALSE},
+	{ "Chaos",	2, TR2_RES_CHAOS,	0, FALSE},
+	{ "Disen",	2, TR2_RES_DISEN,	0, FALSE},
 
-	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0},
-	{ "Feath",	3, TR3_FEATHER, 	0},
-	{ "PLite",	3, TR3_LIGHT, 		0},
-	{ "Regen",	3, TR3_REGEN, 		0},
-	{ "Telep",	3, TR3_TELEPATHY, 	0},
-	{ "Invis",	3, TR3_SEE_INVIS, 	0},
-	{ "FrAct",	3, TR3_FREE_ACT, 	0},
-	{ "HLife",	3, TR3_HOLD_LIFE, 	0},
+	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0, TRUE},
+	{ "Feath",	3, TR3_FEATHER, 	0, TRUE},
+	{ "PLite",	3, TR3_LIGHT, 		0, TRUE},
+	{ "Regen",	3, TR3_REGEN, 		0, TRUE},
+	{ "Telep",	3, TR3_TELEPATHY, 	0, TRUE},
+	{ "Invis",	3, TR3_SEE_INVIS, 	0, TRUE},
+	{ "FrAct",	3, TR3_FREE_ACT, 	0, TRUE},
+	{ "HLife",	3, TR3_HOLD_LIFE, 	0, TRUE},
 
-	{ "Stea.",	1, TR1_STEALTH,		0},
-	{ "Sear.",	1, TR1_SEARCH,		0},
-	{ "Infra",	1, TR1_INFRA,		0},
-	{ "Aggr",	3, TR3_AGGRAVATE,	0},
-	{ "Speed",	1, TR1_SPEED,		0},
-	{ "Blows",	1, TR1_BLOWS,		0},
-	{ "Shots",	1, TR1_SHOTS,		0},
-	{ "Might",	1, TR1_MIGHT,		0}
+	{ "Stea.",	1, TR1_STEALTH,		0, TRUE},
+	{ "Sear.",	1, TR1_SEARCH,		0, TRUE},
+	{ "Infra",	1, TR1_INFRA,		0, TRUE},
+	{ "Aggr",	3, TR3_AGGRAVATE,	0, TRUE},
+	{ "Speed",	1, TR1_SPEED,		0, TRUE},
+	{ "Blows",	1, TR1_BLOWS,		0, TRUE},
+	{ "Shots",	1, TR1_SHOTS,		0, TRUE},
+	{ "Might",	1, TR1_MIGHT,		0, TRUE}
 };
 
 /*
@@ -683,6 +700,16 @@ static void display_player_flag_info(bool onscreen)
 			const struct player_flag_record *pfr_ptr = &player_flag_table[record++];
 			u32b flag_used;
 
+			/* Don't display flags unused in Moria */
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if(!pfr_ptr->moria_flag)
+				{
+					row++;
+					continue;
+				}
+			}
+
 			/* Check equipment */
 			for (n = 8, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
 			{
@@ -692,6 +719,12 @@ static void display_player_flag_info(bool onscreen)
 
 				/* Object */
 				o_ptr = &inventory[i];
+
+				if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+				{
+					c_put_str(TERM_L_DARK, ".", row, col+n);
+					continue;
+				}
 
 				object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
@@ -711,7 +744,7 @@ static void display_player_flag_info(bool onscreen)
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
 				/* First check immunities */
-				else if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
+				if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
 				{
 					c_put_str(TERM_L_GREEN, "*", row, col+n);
 					name_attr = TERM_L_GREEN;
@@ -858,8 +891,12 @@ void display_player_stat_info(int row, int col)
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "  Self", row-1, col+5);
-	c_put_str(TERM_WHITE, " RB", row-1, col+11);
-	c_put_str(TERM_WHITE, " CB", row-1, col+14);
+	/* Don't print stat modifiers stats aren't preserved */
+	if (adult_maximize)
+	{
+		c_put_str(TERM_WHITE, " RB", row-1, col+11);
+		c_put_str(TERM_WHITE, " CB", row-1, col+14);
+	}
 	c_put_str(TERM_WHITE, " EB", row-1, col+18);
 	c_put_str(TERM_WHITE, "  Best", row-1, col+22);
 
@@ -890,13 +927,18 @@ void display_player_stat_info(int row, int col)
 		cnv_stat(p_ptr->stat_max[i], buf, sizeof(buf));
 		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
-		/* Race Bonus add in permanent stat bonus here */
-		strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[i] + p_ptr->stat_quest_add[i]));
-		c_put_str(TERM_L_BLUE, buf, row+i, col+11);
+		/* Don't print stat modifiers stats aren't preserved */
+		if (adult_maximize)
+		{
 
-		/* Class Bonus */
-		strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+14);
+			/* Race Bonus add in permanent stat bonus here */
+			strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[i] + p_ptr->stat_quest_add[i]));
+			c_put_str(TERM_L_BLUE, buf, row+i, col+11);
+
+			/* Class Bonus */
+			strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[i]);
+			c_put_str(TERM_L_BLUE, buf, row+i, col+14);
+		}
 
 		/* Equipment Bonus */
 		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->state.stat_add[i]);
@@ -965,6 +1007,12 @@ static void display_player_sust_info(bool onscreen)
 			/* Default */
 			a = TERM_SLATE;
 			c = '.';
+
+			if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+			{
+				Term_putch(col, row+stats, a, c);
+				continue;
+			}
 
 			if (object_known_p(o_ptr))
 			{
@@ -1214,6 +1262,16 @@ static void display_home_equipment_info(int mode, bool onscreen)
 			const struct player_flag_record *pfr_ptr = &player_flag_table[z];
 			u32b flag_used;
 
+			/* Don't display flags unused in Moria */
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if(!pfr_ptr->moria_flag)
+				{
+					row++;
+					continue;
+				}
+			}
+
 			/* Check equipment */
 			for (n = 7, i = 0; i < MAX_INVENTORY_HOME; ++i, ++n)
 			{
@@ -1237,6 +1295,12 @@ static void display_home_equipment_info(int mode, bool onscreen)
 				else if (pfr_ptr->set == 2) flag_used = f2;
 				else if (pfr_ptr->set == 3) flag_used = f3;
 				else/*(pfr_ptr->set == 3)*/ flag_used = fn;
+
+				/* Color columns by parity */
+				if (i % 2) attr = TERM_L_WHITE;
+
+				/* Non-existent objects */
+				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
 				/* First check immunities */
 				if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
@@ -1597,9 +1661,11 @@ void display_player(int mode, bool onscreen)
 
 	if ((mode) < 2)
 	{
+
 		/* Special */
 		if (mode)
 		{
+
 			/* Misc info */
 			display_player_misc_info(2, 1);
 
@@ -1617,6 +1683,7 @@ void display_player(int mode, bool onscreen)
 		/* Standard */
 		else
 		{
+
 			/* Misc info */
 			display_player_misc_info(1, 1);
 
@@ -1649,6 +1716,12 @@ static void dump_player_plus_minus(ang_file *fff)
 
 		/* Object */
 		o_ptr = &inventory[i];
+
+		if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+		{
+			file_putf(fff," ");
+			continue;
+		}
 
 		/* Get the "known" flags */
 		object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
@@ -1711,6 +1784,12 @@ static void dump_player_stat_info(ang_file *fff)
 		/* Object */
 		o_ptr = &inventory[i];
 
+		if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+		{
+			equippy[x] = ' ';
+			continue;
+		}
+
 		/* empty objects */
 		if (!o_ptr->k_idx)
 		{
@@ -1749,6 +1828,13 @@ static void dump_player_stat_info(ang_file *fff)
 
 			/* Get the object */
 			o_ptr = &inventory[y];
+
+			if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+			{
+				/*dump the result*/
+				file_putf(fff,".");
+				continue;
+			}
 
 			/* Get the "known" flags */
 			object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
@@ -1793,6 +1879,12 @@ static void dump_player_stat_info(ang_file *fff)
 		{
 			/* Get the object */
 			object_type *o_ptr = &inventory[y];
+
+			if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))
+			{
+				file_putf(fff,".");
+				continue;
+			}
 
 			/* Get the "known" flags */
 			object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
@@ -2038,7 +2130,7 @@ errr file_character(const char *path, bool full)
 
 	/* Begin dump */
 	file_putf(fff, "  [%s %s Character Dump]\n\n",
-			VERSION_NAME, VERSION_STRING);
+			VERSION_MODE_NAME, VERSION_STRING);
 
 	/* Display player */
 	display_player(0, FALSE);
@@ -2353,7 +2445,7 @@ errr file_character(const char *path, bool full)
 /*
  * Make a string lower case.
  */
-static void string_lower(char *buf)
+void string_lower(char *buf)
 {
 	char *s;
 
@@ -2679,7 +2771,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Show a general "title" */
-		prt(format("[%s %s, %s, Line %d-%d/%d]", VERSION_NAME, VERSION_STRING,
+		prt(format("[%s %s, %s, Line %d-%d/%d]", VERSION_MODE_NAME, VERSION_STRING,
 				   caption, line, line + hgt - 4, size), 0, 0);
 
 		/* Buttons */
@@ -2803,7 +2895,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		{
 			char ftmp[80];
 			prt("Goto File: ", hgt - 1, 0);
-			my_strcpy(ftmp, "help.hlp", sizeof(ftmp));
+			if (game_mode == GAME_NPPMORIA) my_strcpy(ftmp, "m_help.hlp", sizeof(ftmp));
+			else my_strcpy(ftmp, "help.hlp", sizeof(ftmp));
 			if (askfor_aux(ftmp, sizeof(ftmp), NULL))
 			{
 				if (!show_file(ftmp, NULL, 0, mode)) ke.key = ESCAPE;
@@ -2892,7 +2985,8 @@ void do_cmd_help(void)
 	screen_save();
 
 	/* Peruse the main help file */
-	(void)show_file("help.hlp", NULL, 0, 0);
+	if (game_mode == GAME_NPPMORIA) (void)show_file("m_help.hlp", NULL, 0, 0);
+	else (void)show_file("help.hlp", NULL, 0, 0);
 
 	/* Load screen */
 	screen_load();
@@ -3264,7 +3358,7 @@ void html_screenshot(cptr name, int mode)
 	{
 		file_putf(fp, "<!DOCTYPE html><html><head>\n");
 		file_putf(fp, "  <meta='generator' content='%s %s'>\n",
-					VERSION_NAME, VERSION_STRING);
+				VERSION_MODE_NAME, VERSION_STRING);
 		file_putf(fp, "  <title>%s</title>\n", name);
 		file_putf(fp, "</head>\n\n");
 		file_putf(fp, "<body style='color: #fff; background: #000;'>\n");

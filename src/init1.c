@@ -564,7 +564,7 @@ static flag_name info_flags[] =
 	{"HOLD_LIFE", TR3, TR3_HOLD_LIFE},
 	{"NEVER_PICKUP", TR3, TR3_NEVER_PICKUP},
 	{"IRONMAN_ONLY", TR3, TR3_IRONMAN_ONLY},
-	{"TR3XXX3", TR3, TR3_TR3XXX3},
+	{"STORE_ONLY", TR3, TR3_STORE_ONLY},
 	{"TR3XXX4", TR3, TR3_TR3XXX4},
 	{"IMPACT", TR3, TR3_IMPACT},
 	{"TELEPORT", TR3, TR3_TELEPORT},
@@ -2763,7 +2763,7 @@ errr parse_r_info(char *buf, header *head)
 			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		r_ptr->speed = spd;
+		r_ptr->r_speed = spd;
 		r_ptr->hdice = hp1;
 		r_ptr->hside = hp2;
 		r_ptr->aaf = aaf;

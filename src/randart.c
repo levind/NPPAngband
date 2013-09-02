@@ -669,7 +669,7 @@ static long eval_max_dam(int r_idx)
 					{
 						int attack = 96 + (x * 32) + i;
 
-						this_dam = get_ball_beam_dam(r_ptr, attack, which_gf, powerful);
+						this_dam = get_ball_beam_dam(-1, r_ptr, attack, which_gf, powerful);
 
 						/* handle elemental breaths*/
 						switch (which_gf)
@@ -707,7 +707,7 @@ static long eval_max_dam(int r_idx)
 					{
 						int attack = 96 + (x * 32) + i;
 
-						this_dam = get_ball_beam_dam(r_ptr, attack, which_gf, powerful);
+						this_dam = get_ball_beam_dam(-1, r_ptr, attack, which_gf, powerful);
 					}
 
 					/*slight bonus for cloud_surround*/
@@ -965,7 +965,8 @@ static long eval_max_dam(int r_idx)
 	 * Adjust for speed.  Monster at speed 120 will do double damage,
 	 * monster at speed 100 will do half, etc.  Bonus for monsters who can haste self.
 	 */
-	dam = (dam * extract_energy[r_ptr->speed + (r_ptr->flags6 & RF6_HASTE ? 5 : 0)]) / 10;
+	if (game_mode == GAME_NPPMORIA) dam = calc_energy_gain(r_ptr->r_speed + (r_ptr->flags6 & (RF6_HASTE) ? 1 : 0)) / 10;
+	else dam = (dam * extract_energy_nppangband[r_ptr->r_speed + ((r_ptr->flags6 & (RF6_HASTE)) ? 5 : 0)]) / 10;
 
 	/*but deep in a minimum*/
 	if (dam < 1) dam  = 1;

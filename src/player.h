@@ -55,7 +55,7 @@
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 75
+#define PY_MAX_SPELLS 74
 
 /*
  * Number of spells per book
@@ -78,6 +78,21 @@
 		((cp_ptr->spell_book == TV_DRUID_BOOK) ? \
 		 ((p_ptr->state.stat_ind[A_INT] + p_ptr->state.stat_ind[A_WIS]) / 2) : \
 		 ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? p_ptr->state.stat_ind[A_INT] : p_ptr->state.stat_ind[A_WIS]))
+
+/*Define the spell stat for the various classes (Note, can't handle druids) */
+#define MORIA_SPELL_STAT ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? A_INT : A_WIS)
+
+#define MORIA_MAX_CLASS		6
+#define MORIA_MAX_LEV_ADJ	7
+#define MORIA_MAX_STR_ADJ	7
+#define MORIA_MAX_DEX_ADJ	6
+
+/* class level adjustment constants */
+#define MORIA_CLA_BTH		0
+#define MORIA_CLA_BTHB		1
+#define MORIA_CLA_DEVICE	2
+#define MORIA_CLA_DISARM	3
+#define MORIA_CLA_SAVE		4
 
 
 /*Magic for Beginners*/
@@ -452,6 +467,9 @@
  */
 #define INVEN_TOTAL		36
 
+/* Used for the swap_weapons option */
+#define INVEN_MAIN_WEAPON	INVEN_WIELD
+#define INVEN_SWAP_WEAPON	INVEN_BOW
 
 /*
  *Quiver
@@ -845,6 +863,11 @@ enum
 #define player_on_guild_quest_level() \
        ((q_info[GUILD_QUEST_SLOT].base_level == p_ptr->depth) && \
     	(guild_quest_level()))
+
+#define NPPMORIA_LOWEST_SPEED	9
+#define NPPMORIA_MAX_SPEED		14
+#define NPPMORIA_NORMAL_SPEED	11
+#define STANDARD_ENERGY_GAIN	10
 
 #endif /*INCLUDED_PLAYER_H*/
 

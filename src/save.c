@@ -196,7 +196,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
-	wr_byte(m_ptr->mspeed);
+	wr_byte(m_ptr->m_speed);
 	wr_s16b(m_ptr->m_energy);
 
 	/* Find the number of monster timed effects */
@@ -1044,6 +1044,9 @@ static bool wr_savefile_new(void)
 	wr_byte(VERSION_PATCH);
 	xor_byte = 0;
 	wr_byte(VERSION_EXTRA);
+	xor_byte = 0;
+	wr_byte(game_mode);
+	xor_byte = 0;
 
 	/* Reset the checksum */
 	v_stamp = 0L;
