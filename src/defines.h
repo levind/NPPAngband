@@ -50,17 +50,19 @@
 #define VERSION_NAME "NPPAngband"
 #define SAVEFILE_NAME  "VNLA"
 
+#define VERSION_MODE_NAME (game_mode == GAME_NPPMORIA ? "NPPMoria" : "NPPAngband")
+
 /*
  * Current version string
  */
-#define VERSION_STRING	"6.1.2"
+#define VERSION_STRING	"7.0.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	6
-#define VERSION_MINOR	1
+#define VERSION_MAJOR	7
+#define VERSION_MINOR	0
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -68,8 +70,8 @@
 /*
  * Oldest version number that can still be imported
  */
-#define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	6
+#define OLD_VERSION_MAJOR	7
+#define OLD_VERSION_MINOR	0
 #define OLD_VERSION_PATCH	0
 
 /* Various game modes */
@@ -300,11 +302,14 @@
  * Store constants
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_TURNOVER	12		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	8		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	20		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
+#define STORE_TURNOVER_NPPANGBAND	12		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPANGBAND	8		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPANGBAND	20		/* Max slots to "always" keep full */
+#define STORE_TURNOVER_NPPMORIA		9		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPMORIA		10		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPMORIA		18		/* Max slots to "always" keep full */
 
 /*
  * Misc constants
@@ -323,14 +328,14 @@
  * Percentage of maximum noise you can make just walking around, given a
  * stealth of zero.
  */
-#define WAKEUP_ADJ      20
+#define WAKEUP_ADJ		20
 
 
 /*
  * More maximum values
  */
-#define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	20	/* Maximum range (spells, etc) */
+#define MAX_SIGHT		20	/* Maximum view distance */
+#define MAX_RANGE		20	/* Maximum range (spells, etc) */
 
 
 /*
@@ -497,7 +502,7 @@
 #define LRN_CONFU_SAVE	49 /* Both resist Confusion and Saves apply */
 #define LRN_DARK_SAVE	50
 #define LRN_HOLY_SAVE	51
-#define LRN_LAVA  		62
+#define LRN_LAVA		62
 
 #define LRN_MAX			63
 
@@ -608,7 +613,7 @@ enum
  * An arc with a width (in degrees) less than this value will lose less
  * power over distance.
  */
-#define ARC_STANDARD_WIDTH     90
+#define ARC_STANDARD_WIDTH	90
 
 
 /*
@@ -672,7 +677,6 @@ enum
 
 #define THEMED_LEVEL_NO_QUEST_BOOST	7
 #define THEMED_LEVEL_QUEST_BOOST	10
-
 
 
 /*** Option Definitions ***/
@@ -760,8 +764,8 @@ enum
 #define OPT_view_bright_light		61
 #define OPT_view_granite_light		62
 #define OPT_view_special_light		63
-#define OPT_easy_open 				64
-#define OPT_easy_alter 				65
+#define OPT_easy_open				64
+#define OPT_easy_alter				65
 /* xxx */
 #define OPT_show_piles				67
 #define OPT_center_player			68
@@ -770,7 +774,7 @@ enum
 #define OPT_auto_more				71
 /* xxx */
 #define OPT_auto_display_lists		73
-#define OPT_hp_changes_color  		74
+#define OPT_hp_changes_color		74
 #define OPT_verify_leave_quest		75
 #define OPT_mark_squelch_items		76
 #define OPT_mouse_movement			77
@@ -797,6 +801,7 @@ enum
 #define OPT_birth_no_xtra_artifacts	(OPT_BIRTH+15)
 #define OPT_birth_money				(OPT_BIRTH+16)
 #define OPT_birth_simple_dungeons	(OPT_BIRTH+17)
+#define OPT_birth_swap_weapons		(OPT_BIRTH+18)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -806,7 +811,7 @@ enum
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
-/* xxx xxx */       				/*(OPT_ADULT+0)*/
+/* xxx xxx */						/*(OPT_ADULT+0)*/
 #define OPT_adult_no_selling		(OPT_ADULT+1)
 #define OPT_adult_maximize			(OPT_ADULT+2)
 #define OPT_adult_preserve			(OPT_ADULT+3)
@@ -824,6 +829,7 @@ enum
 #define OPT_adult_no_xtra_artifacts	(OPT_ADULT+15)
 #define OPT_adult_birth_money		(OPT_ADULT+16)
 #define OPT_adult_simple_dungeons	(OPT_ADULT+17)
+#define OPT_adult_swap_weapons		(OPT_ADULT+18)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -930,6 +936,7 @@ enum
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 #define birth_money				op_ptr->opt[OPT_birth_money]
 #define birth_simple_dungeons	op_ptr->opt[OPT_birth_simple_dungeons]
+#define birth_swap_weapons		op_ptr->opt[OPT_birth_swap_weapons]
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -957,6 +964,7 @@ enum
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define adult_money				op_ptr->opt[OPT_adult_money]
 #define adult_simple_dungeons	op_ptr->opt[OPT_adult_simple_dungeons]
+#define adult_swap_weapons		op_ptr->opt[OPT_adult_swap_weapons]
 
 #define hp_changes_color		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest		op_ptr->opt[OPT_verify_leave_quest]
@@ -979,7 +987,6 @@ enum
  */
 #define OPT_PAGE_MAX			5
 #define OPT_PAGE_PER			20
-
 
 
 /*** Macro Definitions ***/
@@ -1130,56 +1137,56 @@ enum
 /*
  * Artifact activation index
  */
-#define ACT_ILLUMINATION        0
-#define ACT_MAGIC_MAP           1
-#define ACT_CLAIRVOYANCE        2
-#define ACT_PROT_EVIL           3
-#define ACT_DISP_EVIL           4
-#define ACT_HEAL1               5
-#define ACT_HEAL2               6
-#define ACT_CURE_WOUNDS         7
-#define ACT_HASTE1              8
-#define ACT_HASTE2              9
-#define ACT_FIRE1               10
-#define ACT_FIRE2               11
-#define ACT_FIRE3               12
-#define ACT_FROST1              13
-#define ACT_FROST2              14
-#define ACT_FROST3              15
-#define ACT_FROST4              16
-#define ACT_FROST5              17
-#define ACT_ACID1               18
-#define ACT_RECHARGE1           19
-#define ACT_SLEEP               20
-#define ACT_LIGHTNING_BOLT      21
-#define ACT_ELEC2               22
-#define ACT_BANISHMENT          23
-#define ACT_MASS_BANISHMENT     24
-#define ACT_IDENTIFY            25
-#define ACT_DRAIN_LIFE1         26
-#define ACT_DRAIN_LIFE2         27
-#define ACT_BIZZARE             28
-#define ACT_STAR_BALL           29
-#define ACT_RAGE_BLESS_RESIST   30
-#define ACT_PHASE               31
-#define ACT_TRAP_DOOR_DEST      32
-#define ACT_DETECT              33
-#define ACT_RESIST              34
-#define ACT_TELEPORT            35
-#define ACT_RESTORE_LIFE        36
-#define ACT_MISSILE             37
-#define ACT_ARROW               38
-#define ACT_REM_FEAR_POIS       39
-#define ACT_STINKING_CLOUD      40
-#define ACT_STONE_TO_MUD        41
-#define ACT_TELE_AWAY           42
-#define ACT_WOR                 43
-#define ACT_CONFUSE             44
-#define ACT_PROBE               45
-#define ACT_FIREBRAND           46
-#define ACT_STARLIGHT           47
-#define ACT_MANA_BOLT           48
-#define ACT_BERSERKER           49
+#define ACT_ILLUMINATION		0
+#define ACT_MAGIC_MAP			1
+#define ACT_CLAIRVOYANCE		2
+#define ACT_PROT_EVIL			3
+#define ACT_DISP_EVIL			4
+#define ACT_HEAL1				5
+#define ACT_HEAL2				6
+#define ACT_CURE_WOUNDS			7
+#define ACT_HASTE1				8
+#define ACT_HASTE2				9
+#define ACT_FIRE1				10
+#define ACT_FIRE2				11
+#define ACT_FIRE3				12
+#define ACT_FROST1				13
+#define ACT_FROST2				14
+#define ACT_FROST3				15
+#define ACT_FROST4				16
+#define ACT_FROST5				17
+#define ACT_ACID1				18
+#define ACT_RECHARGE1			19
+#define ACT_SLEEP				20
+#define ACT_LIGHTNING_BOLT		21
+#define ACT_ELEC2				22
+#define ACT_BANISHMENT			23
+#define ACT_MASS_BANISHMENT		24
+#define ACT_IDENTIFY			25
+#define ACT_DRAIN_LIFE1			26
+#define ACT_DRAIN_LIFE2			27
+#define ACT_BIZZARE				28
+#define ACT_STAR_BALL			29
+#define ACT_RAGE_BLESS_RESIST	30
+#define ACT_PHASE				31
+#define ACT_TRAP_DOOR_DEST		32
+#define ACT_DETECT				33
+#define ACT_RESIST				34
+#define ACT_TELEPORT			35
+#define ACT_RESTORE_LIFE		36
+#define ACT_MISSILE				37
+#define ACT_ARROW				38
+#define ACT_REM_FEAR_POIS		39
+#define ACT_STINKING_CLOUD		40
+#define ACT_STONE_TO_MUD		41
+#define ACT_TELE_AWAY			42
+#define ACT_WOR					43
+#define ACT_CONFUSE				44
+#define ACT_PROBE				45
+#define ACT_FIREBRAND			46
+#define ACT_STARLIGHT			47
+#define ACT_MANA_BOLT			48
+#define ACT_BERSERKER			49
 #define ACT_RES_ACID			50
 #define ACT_RES_ELEC			51
 #define ACT_RES_FIRE			52

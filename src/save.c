@@ -196,7 +196,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
-	wr_byte(m_ptr->mspeed);
+	wr_byte(m_ptr->m_speed);
 	wr_s16b(m_ptr->m_energy);
 
 	/* Find the number of monster timed effects */
@@ -796,15 +796,15 @@ static void wr_notes(void)
 	/* Paranoia */
 	if (adult_take_notes && notes_file)
 	{
-    	char tmpstr[100];
+		char tmpstr[100];
 
-    	(void)file_close(notes_file);
+		(void)file_close(notes_file);
 
-      	/* Re-open for readding */
-    	notes_file = file_open(notes_fname, MODE_READ, -1);
+		/* Re-open for reading */
+		notes_file = file_open(notes_fname, MODE_READ, FTYPE_TEXT);
 
-    	while (TRUE)
-    	{
+		while (TRUE)
+		{
 			/* Read the note from the tempfile */
 			if (!file_getl(notes_file, tmpstr, sizeof(tmpstr)))
 			{
@@ -815,20 +815,20 @@ static void wr_notes(void)
 			/* Paranoia */
 			if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
 
-      		/* Write it into the savefile */
-      		wr_string(tmpstr);
-    	}
+			/* Write it into the savefile */
+			wr_string(tmpstr);
+		}
 
-    	(void)file_close(notes_file);
+		(void)file_close(notes_file);
 
-    	/* Re-open for appending */
-    	notes_file = file_open(notes_fname, MODE_APPEND, FTYPE_TEXT);
-  	}
+		/* Re-open for appending */
+		notes_file = file_open(notes_fname, MODE_APPEND, FTYPE_TEXT);
+	}
 
 	my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
 
-  	/* Always write NOTES_MARK */
-  	wr_string(end_note);
+	/* Always write NOTES_MARK */
+	wr_string(end_note);
 }
 
 
@@ -1044,6 +1044,9 @@ static bool wr_savefile_new(void)
 	wr_byte(VERSION_PATCH);
 	xor_byte = 0;
 	wr_byte(VERSION_EXTRA);
+	xor_byte = 0;
+	wr_byte(game_mode);
+	xor_byte = 0;
 
 	/* Reset the checksum */
 	v_stamp = 0L;

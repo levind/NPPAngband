@@ -301,7 +301,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			case RBE_EAT_GOLD:   power =  5;  break;
 			case RBE_EAT_ITEM:   power =  5;  break;
 			case RBE_EAT_FOOD:   power =  5;  break;
-			case RBE_EAT_LIGHT:   power =  5;  break;
+			case RBE_EAT_LIGHT:  power =  5;  break;
 			case RBE_HUNGER:     power = 15;  break;
 			case RBE_POISON:     power = 25;  break;
 			case RBE_ACID:       power = 10;  break;
@@ -1538,16 +1538,16 @@ bool make_attack_normal(monster_type *m_ptr)
 
 						/*go through the 4 strengths of drain_life*/
 						if (effect == RBE_EXP_10)
-							d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+							d = damroll(10, 6) + (p_ptr->exp/100L) * MON_DRAIN_LIFE;
 
 						else if (effect == RBE_EXP_20)
-							d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+							d = damroll(20, 6) + (p_ptr->exp / 100L) * MON_DRAIN_LIFE;
 
 						else if (effect == RBE_EXP_40)
-							d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+							d = damroll(40, 6) + (p_ptr->exp / 100L) * MON_DRAIN_LIFE;
 
 						else if (effect == RBE_EXP_80)
-							d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+							d = damroll(80, 6) + (p_ptr->exp / 100L) * MON_DRAIN_LIFE;
 
 						/*give the player a message*/
 						if (p_ptr->state.hold_life)
@@ -1979,12 +1979,33 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
  * also have a corresponding max damage by GF type in get_max_dam above,
  * or a damage of zero will be returned.
  *
+ * An m_idx of (-1) means we want damage based solely on the monster race, and
+ * to not factor in the HP of the specific monster.
+ *
  */
 
-int get_ball_beam_dam(monster_race *r_ptr, int attack, int gf_type, bool powerful)
+int get_ball_beam_dam(int m_idx, monster_race *r_ptr, int attack, int gf_type, bool powerful)
 {
 	int dam = get_dam(r_ptr, attack);
 	int max_dam = get_max_dam(gf_type, powerful);
+
+	/* Factor in the hp of the specific monster if called for */
+	if (m_idx > 0)
+	{
+		monster_type *m_ptr = &mon_list[m_idx];
+
+		/* Paranoia - make sure it is a real monster */
+		if (m_ptr->r_idx)
+		{
+			int breath_dam = get_breath_dam(m_ptr->hp, gf_type, powerful);
+
+			/*
+			 * Average the damage of a fully healthy creature, and the current monster, so
+			 * ball (breath) spells lose some power, but not as much as plain breath spells.
+			 */
+			dam = (breath_dam + dam) / 2;
+		}
+	}
 
 	/* Return breath damage, don't exceed max damage */
 	if (max_dam <= dam) return (max_dam);
@@ -2586,7 +2607,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes acid.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_ACID, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2610,7 +2631,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes lightning.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_ELEC, (m_ptr->hp / 4), 2, py, px);
 				break;
@@ -2630,7 +2651,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes fire.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_FIRE, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2650,7 +2671,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes frost.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_COLD, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2670,7 +2691,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes gas.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_POIS, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2690,7 +2711,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes plasma.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_PLASMA, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2710,7 +2731,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes light.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_LIGHT, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2730,7 +2751,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			msg_format("%^s breathes darkness.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_DARK, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2750,7 +2771,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes confusion.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_CONFUSION, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2770,7 +2791,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes sound.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_SOUND, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2790,7 +2811,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes shards.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_SHARD, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2810,7 +2831,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes inertia.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_INERTIA, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2830,7 +2851,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes gravity.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_GRAVITY, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2856,7 +2877,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes force.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_FORCE, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2876,7 +2897,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes nexus.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_NEXUS, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2895,7 +2916,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes nether.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_NETHER, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2915,7 +2936,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes chaos.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_CHAOS, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2935,7 +2956,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes disenchantment.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_DISENCHANT, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2955,7 +2976,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes time.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_TIME, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -2974,7 +2995,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else msg_format("%^s breathes raw mana.", m_name);
 
 			/* Handle Moria breath spells the old fashioned way */
-			if (game_mode == GAME_NPPANGBAND)
+			if (game_mode == GAME_NPPMORIA)
 			{
 				mon_ball(m_idx, GF_TIME, (m_ptr->hp / 3), 2, py, px);
 				break;
@@ -3043,7 +3064,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (spower < 80) rad = 3;
 				else rad = 4;
 			}
-			mon_ball(m_idx, GF_ACID, get_ball_beam_dam(r_ptr, attack, GF_ACID, powerful), rad, py, px);
+			mon_ball(m_idx, GF_ACID, get_ball_beam_dam(m_idx, r_ptr, attack, GF_ACID, powerful), rad, py, px);
 			break;
 		}
 
@@ -3100,7 +3121,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 					spower = 3 * spower / 2;
 				}
 			}
-			mon_ball(m_idx, GF_ELEC, get_ball_beam_dam(r_ptr, attack, GF_ELEC, powerful), rad, py, px);
+			mon_ball(m_idx, GF_ELEC, get_ball_beam_dam(m_idx, r_ptr, attack, GF_ELEC, powerful), rad, py, px);
 			break;
 		}
 
@@ -3149,7 +3170,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s conjures up a maelstrom of fire!", m_name);
 				rad = 4;
 			}
-			mon_ball(m_idx, GF_FIRE, get_ball_beam_dam(r_ptr, attack, GF_FIRE, powerful), rad, py, px);
+			mon_ball(m_idx, GF_FIRE, get_ball_beam_dam(m_idx, r_ptr, attack, GF_FIRE, powerful), rad, py, px);
 			break;
 		}
 
@@ -3193,7 +3214,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (spower < 80) rad = 3;
 				else rad = 4;
 			}
-			mon_ball(m_idx, GF_COLD, get_ball_beam_dam(r_ptr, attack, GF_COLD, powerful), rad, py, px);
+			mon_ball(m_idx, GF_COLD, get_ball_beam_dam(m_idx, r_ptr, attack, GF_COLD, powerful), rad, py, px);
 			break;
 		}
 
@@ -3237,7 +3258,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (spower < 80) rad = 4;
 				else rad = 5;
 			}
-			mon_ball(m_idx, GF_POIS, get_ball_beam_dam(r_ptr, attack, GF_POIS, powerful), rad, py, px);
+			mon_ball(m_idx, GF_POIS, get_ball_beam_dam(m_idx, r_ptr, attack, GF_POIS, powerful), rad, py, px);
 			break;
 		}
 
@@ -3280,7 +3301,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s invokes a powerful explosion of light.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_LIGHT, get_ball_beam_dam(r_ptr, attack, GF_LIGHT, powerful), rad, py, px);
+			mon_ball(m_idx, GF_LIGHT, get_ball_beam_dam(m_idx, r_ptr, attack, GF_LIGHT, powerful), rad, py, px);
 			break;
 		}
 
@@ -3324,7 +3345,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (spower < 110) rad = 3;
 				else rad = 4;
 			}
-			mon_ball(m_idx, GF_DARK, get_ball_beam_dam(r_ptr, attack, GF_DARK, powerful), rad, py, px);
+			mon_ball(m_idx, GF_DARK, get_ball_beam_dam(m_idx, r_ptr, attack, GF_DARK, powerful), rad, py, px);
 			break;
 		}
 
@@ -3367,7 +3388,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s invokes a powerful storm of confusion.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_CONFUSION, get_ball_beam_dam(r_ptr, attack, GF_CONFUSION, powerful), rad, py, px);
+			mon_ball(m_idx, GF_CONFUSION, get_ball_beam_dam(m_idx, r_ptr, attack, GF_CONFUSION, powerful), rad, py, px);
 			break;
 		}
 
@@ -3410,7 +3431,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s unleashes a cacophony of sound.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_SOUND, get_ball_beam_dam(r_ptr, attack, GF_SOUND, powerful), rad, py, px);
+			mon_ball(m_idx, GF_SOUND, get_ball_beam_dam(m_idx, r_ptr, attack, GF_SOUND, powerful), rad, py, px);
 			break;
 		}
 
@@ -3453,7 +3474,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s invokes a storm of shards!", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_SHARD, get_ball_beam_dam(r_ptr, attack, GF_SHARD, powerful), rad, py, px);
+			mon_ball(m_idx, GF_SHARD, get_ball_beam_dam(m_idx, r_ptr, attack, GF_SHARD, powerful), rad, py, px);
 			break;
 		}
 
@@ -3479,7 +3500,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s produces a violent meteor storm.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_METEOR, get_ball_beam_dam(r_ptr, attack, GF_METEOR, powerful), rad, py, px);
+			mon_ball(m_idx, GF_METEOR, get_ball_beam_dam(m_idx, r_ptr, attack, GF_METEOR, powerful), rad, py, px);
 			break;
 		}
 
@@ -3509,7 +3530,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				msg_print("You are lost in a raging tempest of wind and water!");
 				rad = 5;
 			}
-			mon_ball(m_idx, GF_WATER, get_ball_beam_dam(r_ptr, attack, GF_WATER, powerful), rad, py, px);
+			mon_ball(m_idx, GF_WATER, get_ball_beam_dam(m_idx, r_ptr, attack, GF_WATER, powerful), rad, py, px);
 			break;
 		}
 
@@ -3552,7 +3573,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s calls up a storm of nether magics.", m_name);
 			rad = 3;
 			}
-			mon_ball(m_idx, GF_NETHER, get_ball_beam_dam(r_ptr, attack, GF_NETHER, powerful), rad, py, px);
+			mon_ball(m_idx, GF_NETHER, get_ball_beam_dam(m_idx, r_ptr, attack, GF_NETHER, powerful), rad, py, px);
 			break;
 		}
 
@@ -3596,7 +3617,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s invokes a storm of chaos.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_CHAOS, get_ball_beam_dam(r_ptr, attack, GF_CHAOS, powerful), rad, py, px);
+			mon_ball(m_idx, GF_CHAOS, get_ball_beam_dam(m_idx, r_ptr, attack, GF_CHAOS, powerful), rad, py, px);
 			break;
 		}
 
@@ -3622,7 +3643,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s invokes a storm of mana.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_MANA, get_ball_beam_dam(r_ptr, attack, GF_MANA, powerful), rad, py, px);
+			mon_ball(m_idx, GF_MANA, get_ball_beam_dam(m_idx, r_ptr, attack, GF_MANA, powerful), rad, py, px);
 
 			break;
 		}
@@ -3650,7 +3671,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (spower < 120) rad = 3;
 				else rad = 4;
 			}
-			mon_ball(m_idx, GF_WATER, get_ball_beam_dam(r_ptr, attack, GF_WATER, powerful), rad, py, px);
+			mon_ball(m_idx, GF_WATER, get_ball_beam_dam(m_idx, r_ptr, attack, GF_WATER, powerful), rad, py, px);
 			break;
 		}
 
@@ -3865,7 +3886,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			}
 			else msg_format("%^s shoots a spark of lightning at you.", m_name);
 
-			mon_beam(m_idx, GF_ELEC, get_ball_beam_dam(r_ptr, attack, GF_ELEC, powerful), 10);
+			mon_beam(m_idx, GF_ELEC, get_ball_beam_dam(-1, r_ptr, attack, GF_ELEC, powerful), 10);
 			break;
 		}
 
@@ -3883,7 +3904,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s murmurs deeply.", m_name);
 				else msg_format("%^s casts an icy lance.", m_name);
 			}
-			mon_beam(m_idx, GF_ICE, get_ball_beam_dam(r_ptr, attack, GF_ICE, powerful), 12);
+			mon_beam(m_idx, GF_ICE, get_ball_beam_dam(-1, r_ptr, attack, GF_ICE, powerful), 12);
 			break;
 		}
 
@@ -3911,7 +3932,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s intones with deadly menace.", m_name);
 				else msg_format("%^s unleashes a ray of death.", m_name);
 			}
-			mon_beam(m_idx, GF_NETHER, get_ball_beam_dam(r_ptr, attack, GF_NETHER, powerful), 10);
+			mon_beam(m_idx, GF_NETHER, get_ball_beam_dam(-1, r_ptr, attack, GF_NETHER, powerful), 10);
 			break;
 		}
 
@@ -3940,7 +3961,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (blind) msg_format("%^s mubles something.", m_name);
 				else msg_format("%^s shoots a searing jet of lava.", m_name);
 			}
-			mon_beam(m_idx, GF_LAVA, get_ball_beam_dam(r_ptr, attack, GF_LAVA, powerful), 10);
+			mon_beam(m_idx, GF_LAVA, get_ball_beam_dam(-1, r_ptr, attack, GF_LAVA, powerful), 10);
 			break;
 		}
 
@@ -3966,7 +3987,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				else msg_format("%^s casts a large orb of holy might.", m_name);
 				rad = 3;
 			}
-			mon_ball(m_idx, GF_HOLY_ORB, get_ball_beam_dam(r_ptr, attack, GF_HOLY_ORB, powerful), rad, py, px);
+			mon_ball(m_idx, GF_HOLY_ORB, get_ball_beam_dam(-1, r_ptr, attack, GF_HOLY_ORB, powerful), rad, py, px);
 
 			break;
 		}
@@ -5163,6 +5184,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		default:
 		{
 			msg_print("A monster tried to cast a spell that has not yet been defined.");
+
+			break;
 		}
 	}
 

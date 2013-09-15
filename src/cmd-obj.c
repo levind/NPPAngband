@@ -35,10 +35,10 @@ static int check_devices(object_type *o_ptr)
 	/* Get the right string */
 	switch (o_ptr->tval)
 	{
-		case TV_ROD:   msg = "zap the rod";   break;
-		case TV_WAND:  msg = "use the wand";  what = "wand";  break;
-		case TV_STAFF: msg = "use the staff"; what = "staff"; break;
-		default:       msg = "activate it";  break;
+		case TV_ROD:	msg = "zap the rod";   break;
+		case TV_WAND:	msg = "use the wand";  what = "wand";  break;
+		case TV_STAFF:	msg = "use the staff"; what = "staff"; break;
+		default:		msg = "activate it";  break;
 	}
 
 	/* Figure out how hard the item is to use */
@@ -480,6 +480,138 @@ static void obj_wield(object_type *o_ptr, int item)
 	cmd_insert(CMD_WIELD, item, slot);
 }
 
+static void swap_weapons(void)
+{
+	object_type *o_ptr = &inventory[INVEN_MAIN_WEAPON];
+	object_type *j_ptr = &inventory[INVEN_SWAP_WEAPON];
+	object_type object_type_body;
+	object_type *i_ptr = & object_type_body;
+	char o_name[80];
+	cptr act;
+
+	/* Not holding anything */
+	if ((!o_ptr->k_idx) && (!j_ptr->k_idx))
+	{
+		msg_print("But you are wielding no weapons.");
+		return;
+	}
+
+	/* Can't swap because of a cursed weapon */
+	if (cursed_p(o_ptr))
+	{
+		object_desc(o_name, sizeof(o_name), o_ptr,  ODESC_BASE);
+		msg_format("The %s you are %s appears to be cursed.", o_name,  describe_use(INVEN_MAIN_WEAPON));
+		return;
+	}
+
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+	/* Give the player a message for teh item they are taking off */
+	if (o_ptr->k_idx)
+	{
+		/* The player took off a bow */
+		if (obj_is_bow(o_ptr))
+		{
+			act = "You were shooting";
+		}
+
+		/* Took off weapon */
+		else act = "You were wielding";
+
+		/* Describe the object */
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+		msg_format("%s %s (%c).", act, o_name, index_to_label(INVEN_SWAP_WEAPON));
+	}
+
+	/* Make a record of the primary weapon, and wipe it */
+	object_copy(i_ptr, o_ptr);
+	object_wipe(o_ptr);
+
+	/* Insert the swap weapon if there is one */
+	if (j_ptr->k_idx)
+	{
+		wield_item(j_ptr, INVEN_SWAP_WEAPON, INVEN_MAIN_WEAPON);
+	}
+
+	/* if a previous weapon, place it in the secondary weapon slot */
+	if (i_ptr->k_idx)
+	{
+		object_copy(j_ptr, i_ptr);
+	}
+
+	/* Recalculate bonuses, torch, mana */
+	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+}
+
+/* Search the backpack for a weapon with @x and wield it*/
+static void wield_swap_weapon(void)
+{
+	int i;
+
+	object_type *o_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+	/* Can't swap because of a cursed weapon */
+	if (cursed_p(o_ptr))
+	{
+		char o_name[80];
+
+		object_desc(o_name, sizeof(o_name), o_ptr,  ODESC_BASE);
+		msg_format("The %s you are %s appears to be cursed.", o_name,  describe_use(INVEN_MAIN_WEAPON));
+		return;
+	}
+
+	/* Check every object */
+	for (i = 0; i < INVEN_MAX_PACK; ++i)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->obj_note) continue;
+
+		if(!obj_is_weapon(o_ptr)) continue;
+
+		/* Look for '@x' */
+		if(!strstr(quark_str(o_ptr->obj_note), "@x")) continue;
+
+		/* Wield it */
+		wield_item(o_ptr, i, INVEN_MAIN_WEAPON);
+
+		p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+		/* Recalculate bonuses, torch, mana */
+		p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+
+		/* We are done */
+		return;
+	}
+
+	/* Didn't find anything */
+	msg_print("Please inscribe a weapon with '@x' in order to swap it.");
+}
+
+/*
+ * Depending on game options, either swap weapons between the main weapon
+ * slot and the swap weapon slot, or search for weapon with the @x inscription and wield it
+ */
+void do_cmd_swap_weapon(cmd_code code, cmd_arg args[])
+{
+	(void)code;
+	(void)args;
+
+	if (adult_swap_weapons) swap_weapons();
+	else wield_swap_weapon();
+}
+
+void textui_cmd_swap_weapon(void)
+{
+	cmd_insert(CMD_SWAP);
+}
+
 
 /*
  * Peruse spells in a book
@@ -805,6 +937,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 		}
 
 		case SV_FOOD_RATION:
+		case SV_FOOD_FINE_MUSH:
 		case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
@@ -1071,14 +1204,31 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEROISM:
 		{
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (!p_ptr->timed[TMD_HERO])
+				{
+					p_ptr->chp +=10;
+					p_ptr->mhp +=10;
+				}
+			}
 			if (hp_player(10)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_HERO, randint(25) + 25, TRUE)) *ident = TRUE;
+
 			break;
 		}
 
 		case SV_POTION_BERSERK_STRENGTH:
 		{
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (!p_ptr->timed[TMD_SHERO])
+				{
+					p_ptr->mhp +=15;
+					p_ptr->chp +=15;
+				}
+			}
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_SHERO, randint(25) + 25, TRUE)) *ident = TRUE;
@@ -2823,6 +2973,14 @@ static bool activate_object(object_type *o_ptr, int dir)
 			{
 				int act_time = randint(50) + 50;
 				msg_format("Your %s glows many colours...", o_name);
+				if (game_mode == GAME_NPPMORIA)
+				{
+					if (!p_ptr->timed[TMD_SHERO])
+					{
+						p_ptr->mhp +=15;
+						p_ptr->chp +=15;
+					}
+				}
 				(void)hp_player(30);
 				(void)clear_timed(TMD_AFRAID, TRUE);
 				(void)inc_timed(TMD_SHERO, randint(50) + 50, TRUE);
@@ -3116,6 +3274,14 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_BERSERKER:
 			{
 				msg_format("Your %s glows in anger...", o_name);
+				if (game_mode == GAME_NPPMORIA)
+				{
+					if (!p_ptr->timed[TMD_SHERO])
+					{
+						p_ptr->mhp +=15;
+						p_ptr->chp +=15;
+					}
+				}
 				inc_timed(TMD_SHERO, randint(50) + 50, TRUE);
 				break;
 			}
@@ -3524,20 +3690,8 @@ static bool use_object(object_type *o_ptr, bool *ident, bool aware, int dir)
 
 
 /*
- * Use an object the right way.
+ * Use an object.
  *
- * There may be a BIG problem with any "effect" that can cause "changes"
- * to the inventory.  For example, a "scroll of recharging" can cause
- * a wand/staff to "disappear", moving the inventory up.  Luckily, the
- * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
- * But, for example, a "staff of recharging" could cause MAJOR problems.
- * In such a case, it will be best to either (1) "postpone" the effect
- * until the end of the function, or (2) "change" the effect, say, into
- * giving a staff "negative" charges, or "turning a staff into a stick".
- * It seems as though a "rod of recharging" might in fact cause problems.
- * The basic problem is that the act of recharging (and destroying) an
- * item causes the inducer of that action to "move", causing "o_ptr" to
- * no longer point at the correct item, with horrifying results.
  */
 void do_cmd_use(cmd_code code, cmd_arg args[])
 {
@@ -3648,7 +3802,7 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 	/* track the object used */
 	track_object(item);
 
-	/* If the item requires a direction, get one (allow cancelling) */
+	/* If the item requires a direction, get one (allow canceling) */
 	if (obj_needs_aim(o_ptr))
 		dir = args[1].direction;
 
@@ -3663,8 +3817,20 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 			sound(snd);
 		}
 
+		/* mark the item (the place in the inventory might shift) */
+		o_ptr->obj_in_use = TRUE;
+
 		/* Do effect */
 		used = use_object(o_ptr, &ident, was_aware, dir);
+
+		/* make sure we still have the right item if the inventory was moved around */
+		if (find_object_in_use(&item))
+		{
+			o_ptr = object_from_item_idx(item);
+		}
+
+		/* Clear the item mark */
+		o_ptr->obj_in_use = FALSE;
 
 		/* Quit if the item wasn't used and no knowledge was gained */
 		if (!used && (was_aware || !ident)) return;
@@ -3930,10 +4096,17 @@ static void do_item(item_act act)
 			return;
 	}
 
+	/* Don't allow activation of swap weapons */
+	if (adult_swap_weapons)
+	{
+		if (item_actions[act].command == CMD_ACTIVATE)  item_tester_swap = TRUE;
+	}
+
 	/* Get item */
 	q = item_actions[act].prompt;
 	s = item_actions[act].noop;
 	item_tester_hook = item_actions[act].filter;
+
 	if (!get_item(&item, q, s, item_actions[act].mode)) return;
 
 	/* Get the item */
