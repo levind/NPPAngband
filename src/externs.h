@@ -40,6 +40,8 @@ extern char *macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
 /* tables.c */
+extern const byte moria_class_level_adj[MORIA_MAX_CLASS][MORIA_MAX_LEV_ADJ];
+extern const byte moria_blows_table[MORIA_MAX_STR_ADJ][MORIA_MAX_DEX_ADJ];
 extern const s16b ddd[9];
 extern const s16b ddx[10];
 extern const s16b ddy[10];
@@ -69,7 +71,8 @@ extern const byte adj_dex_safe[];
 extern const byte adj_con_fix[];
 extern const int adj_con_mhp[];
 extern const byte blows_table[12][12];
-extern const byte extract_energy[200];
+extern const byte extract_energy_nppmoria[6];
+extern const byte extract_energy_nppangband[200];
 extern const s32b player_exp_nppangband[PY_MAX_LEVEL];
 extern const s32b player_exp_nppmoria[PY_MAX_LEVEL_MORIA];
 extern const player_sex sex_info[MAX_SEXES];
@@ -103,9 +106,11 @@ extern cptr squelch_status[SQUELCH_OPT_MAX];
 extern const byte squelch_status_color[SQUELCH_OPT_MAX];
 extern const byte arena_level_map[ARENA_LEVEL_HGT][ARENA_LEVEL_WID];
 extern const byte pit_room_maps[MAX_PIT_PATTERNS][PIT_HEIGHT][PIT_WIDTH];
-extern const slays_structure slays_info[11];
-extern const brands_structure brands_info[10];
-extern const mon_susceptibility_struct mon_suscept[2];
+extern const slays_structure slays_info_nppangband[11];
+extern const brands_structure brands_info_nppangband[10];
+extern const slays_structure slays_info_nppmoria[4];
+extern const slays_structure brands_info_nppmoria[4];
+extern const mon_susceptibility_struct mon_suscept[4];
 
 
 /* variable.c */
@@ -334,6 +339,7 @@ extern char *ANGBAND_DIR_XTRA_ICON;
 
 extern bool item_tester_full;
 extern byte item_tester_tval;
+extern bool item_tester_swap;
 extern bool (*item_tester_hook)(const object_type*);
 extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
@@ -370,7 +376,8 @@ extern bool test_hit(int chance, int ac, int vis);
 extern int rogue_shot(const object_type *o_ptr, int *plus, player_state shot_state);
 extern bool check_hit(int power);
 extern int critical_hit_chance(const object_type *o_ptr, player_state a_state, bool id_only);
-extern int critical_shot_chance(const object_type *o_ptr, player_state a_state, bool throw, bool id_only, u32b f3);
+extern int critical_hit_check(const object_type *o_ptr, int *dd, int *plus);
+extern int critical_shot_chance(const object_type *o_ptr, player_state a_state, bool thr, bool id_only, u32b f3);
 extern void py_attack(int y, int x);
 extern void do_cmd_fire(cmd_code code, cmd_arg args[]);
 extern void textui_cmd_fire(void);
@@ -403,9 +410,11 @@ extern char button_get_key(int x, int y);
 extern size_t button_print(int row, int col);
 
 /* calcs.c*/
+extern int stat_adj_moria(int stat);
 extern void calc_spells(void);
 extern int calc_blows(const object_type *o_ptr, player_state *new_state);
 extern void calc_bonuses(object_type inventory[], player_state *state, bool id_only);
+extern byte calc_energy_gain(byte speed);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);
@@ -598,6 +607,8 @@ extern void obj_examine(object_type *o_ptr, int item);
 extern void do_cmd_takeoff(cmd_code code, cmd_arg args[]);
 extern void do_cmd_wield(cmd_code code, cmd_arg args[]);
 extern void do_cmd_drop(cmd_code code, cmd_arg args[]);
+extern void do_cmd_swap_weapon(cmd_code code, cmd_arg args[]);
+extern void textui_cmd_swap_weapon(void);
 extern void obj_browse(object_type *o_ptr, int item);
 extern void obj_study(object_type *o_ptr, int item);
 extern void obj_cast(object_type *o_ptr, int item);
@@ -718,6 +729,7 @@ extern void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *fn);
 extern void display_player_stat_info(int row, int col);
 extern void display_player(int mode, bool onscreen);
 extern errr file_character(cptr name, bool full);
+extern void string_lower(char *buf);
 extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
 extern void process_player_name(bool sf);
@@ -769,13 +781,14 @@ extern void cleanup_angband(void);
 
 /* load.c */
 extern bool load_player(void);
+extern void load_gamemode(void);
 
 /* melee1.c */
 extern int drain_charges(object_type *o_ptr, u32b heal);
 extern bool make_attack_normal(monster_type *m_ptr);
 extern int get_dam(monster_race *r_ptr, int attack);
 extern int get_breath_dam(s16b hit_points, int gf_type, bool powerful);
-extern int get_ball_beam_dam(monster_race *r_ptr, int attack, int gf_type, bool powerful);
+extern int get_ball_beam_dam(int m_idx, monster_race *r_ptr, int attack, int gf_type, bool powerful);
 extern void mon_cloud(int m_idx, int typ, int dam, int rad);
 extern bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px);
 extern void cloud_surround(int r_idx, int *typ, int *dam, int *rad);
@@ -860,7 +873,7 @@ extern void update_smart_learn(int m_idx, int what);
 
 /* object1.c */
 extern void strip_name(char *buf, int k_idx);
-extern size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail_t mode);
+extern size_t object_desc(char *buf, size_t max, const object_type *o_ptr, int mode);
 extern void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref, int mode);
 extern void identify_random_gen(const object_type *o_ptr);
 
@@ -919,7 +932,7 @@ extern bool weapon_inscribed_for_quiver(const object_type *o_ptr);
 extern bool slot_can_wield_item(int slot, const object_type *o_ptr);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
-extern bool item_tester_okay(const object_type *o_ptr);
+extern bool item_tester_okay(const object_type *o_ptr, int obj_num);
 extern int scan_floor(int *items, int size, int y, int x, int mode);
 extern void excise_object_idx(int o_idx);
 extern void delete_object_idx(int o_idx);
@@ -978,6 +991,7 @@ extern void display_object_kind_recall(s16b k_idx);
 extern void display_itemlist(void);
 extern bool obj_can_refill(const object_type *o_ptr);
 extern bool obj_is_spellbook(const object_type *o_ptr);
+extern bool obj_is_shovel(const object_type *o_ptr);
 extern bool obj_is_bow(const object_type *o_ptr);
 extern bool obj_is_staff(const object_type *o_ptr);
 extern bool obj_is_wand(const object_type *o_ptr);
@@ -1015,10 +1029,11 @@ extern bool pack_is_overfull(void);
 extern void pack_overflow(void);
 
 /* obj-ui.c */
-extern void show_inven(olist_detail_t mode);
+extern bool find_object_in_use(int *item);
+extern void show_inven(int mode);
 extern void display_equip(void);
-extern void show_equip(olist_detail_t mode);
-extern void show_floor(const int *floor_list, int floor_num, olist_detail_t mode);
+extern void show_equip(int mode);
+extern void show_floor(const int *floor_list, int floor_num, int mode);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 extern bool get_item_beside(int *cp, cptr pmt, cptr str, int sq_y, int sq_x);
 extern bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x);
@@ -1326,6 +1341,7 @@ extern bool set_timed(int idx, int v, bool notify);
 extern bool inc_timed(int idx, int v, bool notify);
 extern bool dec_timed(int idx, int v, bool notify);
 extern bool clear_timed(int idx, bool notify);
+extern bool player_can_repeat(void);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);

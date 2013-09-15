@@ -174,6 +174,7 @@ bool spell_needs_aim(int tval, int spell)
 			case SPELL_LIGHTNING_BOLT:
 			case SPELL_FROST_BOLT:
 			case SPELL_FROST_BALL:
+			case SPELL_FIRE_BOLT:
 			case SPELL_FIRE_BALL:
 			case SPELL_TRAP_DOOR_DESTRUCTION:
 			case SPELL_SLEEP_MONSTER:
@@ -2934,6 +2935,13 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dam = plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2);
 			rad = 2;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 3;
+				sides = 6;
+				dam = plev;
+			}
+
 			if (name) return ("Orb of Draining");
 			if (desc) return (format("Fires a radius %d orb of holy force that does %d+%dd%d damage.", rad, dam, dice, sides));
 			if (desc_short) return (format("rad %d dam %d+%dd%d ", rad, dam, dice, sides));
@@ -3129,6 +3137,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			dam = 325;
 
+			if (game_mode == GAME_NPPMORIA) dam = 200;
+
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
 			if (desc_short) return (format("heal %d hp.", dam));
@@ -3172,15 +3182,22 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_HOLY_WORD:
 		{
-			dam = 150;
+
+			dam = dice = 150;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = plev * 4;
+				dice = 1000;
+			}
 
 			if (name) return ("Holy Word");
-			if (desc) return (format("Dispels evil with %d hp damage, and Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
-			if (desc_short) return (format("dam %d, heal %d", dam, dam));
+			if (desc) return (format("Dispels evil with %d hp damage, and eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dice));
+			if (desc_short) return (format("dam %d, heal %d", dam, dice));
 			if (cast)
 			{
 				(void)dispel_evil(dam);
-				(void)hp_player(dam);
+				(void)hp_player(dice);
 				(void)clear_timed(TMD_AFRAID, TRUE);
 				(void)clear_timed(TMD_POISONED, TRUE);
 				(void)set_stun(0);
@@ -3674,7 +3691,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dice = 1;
 			sides = plev * 3;
 
-			if (name) return ("Dispel Evil");
+			if (name) return ("Dispel Undead");
 			if (desc) return (format("Does %dd%d damage to all evil creatures in line of sight.", dice, sides));
 			if (desc_short) return (format("dam %dd%d", dice, sides));
 			if (cast)

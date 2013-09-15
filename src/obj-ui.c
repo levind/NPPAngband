@@ -26,7 +26,7 @@
  * Used by show_inven(), show_equip(), and show_floor().  Mode flags are
  * documented in object.h
  */
-static void show_obj_list(int num_obj, char labels[50][80], object_type *objects[50], olist_detail_t mode)
+static void show_obj_list(int num_obj, char labels[50][80], object_type *objects[50], int mode)
 {
 	int i, row = 0, col = 0;
 	size_t max_len = 0;
@@ -226,7 +226,7 @@ static void clear_object_in_use(void)
  * Returns TRUE/FALSE, and uses a pointer to return the item in use
  */
 
-static bool find_object_in_use(int *item)
+bool find_object_in_use(int *item)
 {
 	int i;
 	object_type *o_ptr;
@@ -276,7 +276,7 @@ static bool find_object_in_use(int *item)
  * off to show_obj_list() for display.  Mode flags documented in
  * object.h
  */
-void show_inven(olist_detail_t mode)
+void show_inven(int mode)
 {
 	int i, last_slot = 0;
 
@@ -301,7 +301,7 @@ void show_inven(olist_detail_t mode)
 		o_ptr = &inventory[i];
 
 		/* Acceptable items get a label */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 			strnfmt(labels[num_obj], sizeof(labels[num_obj]), "%c) ", index_to_label(i));
 
 		/* Unacceptable items are still displayed in term windows */
@@ -398,6 +398,9 @@ static int get_tag(int *cp, char tag)
 
 		/* Skip empty inscriptions */
 		if (!o_ptr->obj_note) continue;
+
+		/* Don't check the swap weapon */
+		if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON)) continue;
 
 		/* Find a '@' */
 		s = strchr(quark_str(o_ptr->obj_note), '@');
@@ -555,6 +558,7 @@ void display_equip(void)
 	/* Display the equipment */
 	for (i = INVEN_WIELD; i < ALL_INVEN_TOTAL; i++)
 	{
+
 		/* Examine the item */
 		o_ptr = &inventory[i];
 
@@ -578,7 +582,7 @@ void display_equip(void)
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
 		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
@@ -651,13 +655,12 @@ void display_equip(void)
 }
 
 
-
 /*
  * Display the equipment.  Builds a list of objects and passes them
  * off to show_obj_list() for display.  Mode flags documented in
  * object.h
  */
-void show_equip(olist_detail_t mode)
+void show_equip(int mode)
 {
 	int i, last_slot = 0;
 
@@ -693,7 +696,7 @@ void show_equip(olist_detail_t mode)
 			for (j = i; j < last_slot; j++)
 			{
 				o_ptr = &inventory[j];
-				if (item_tester_okay(o_ptr)) need_spacer = TRUE;
+				if (item_tester_okay(o_ptr, i)) need_spacer = TRUE;
 			}
 
 			/* Add a spacer between equipment and quiver */
@@ -708,7 +711,7 @@ void show_equip(olist_detail_t mode)
 		}
 
 		/* Acceptable items get a label */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 			strnfmt(labels[num_obj], sizeof(labels[num_obj]), "%c) ", index_to_label(i));
 
 		/* Unacceptable items are still displayed in term windows */
@@ -746,7 +749,7 @@ void show_equip(olist_detail_t mode)
  * off to show_obj_list() for display.  Mode flags documented in
  * object.h
  */
-void show_floor(const int *floor_list, int floor_num, olist_detail_t mode)
+void show_floor(const int *floor_list, int floor_num, int mode)
 {
 	int i;
 
@@ -767,7 +770,7 @@ void show_floor(const int *floor_list, int floor_num, olist_detail_t mode)
 		 * only test items that are not gold.
 		 */
 		if ((o_ptr->tval != TV_GOLD || !(mode & OLIST_GOLD)) &&
-		    !item_tester_okay(o_ptr))
+		    !item_tester_okay(o_ptr, i))
 			continue;
 
 		strnfmt(labels[num_obj], sizeof(labels[num_obj]),
@@ -830,8 +833,12 @@ static bool verify_item(int item)
 		{
 			int slot = wield_slot(o_ptr);
 
-			/* Where would the item go? */
-			if (slot == INVEN_WIELD) 		prompt = "Really wield";
+			/* Where would the item go? INVEN_MAIN_WEAPON */
+			if (slot == INVEN_WIELD)
+			{
+				if (obj_is_bow(o_ptr)) prompt = "Really shoot with";
+				else prompt = "Really wield";
+			}
 			else if (slot == INVEN_BOW) 	prompt = "Really shoot with";
 			else if ((slot == INVEN_LIGHT)	|| (slot == INVEN_ARM))
 			{
@@ -1637,6 +1644,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 					refresh = TRUE;
 					break;
 				}
+				/* Do not use break */
 			}
 			case '.':
 			{
@@ -1693,6 +1701,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 			{
 				evt.type = EVT_ESCAPE;
 				done = TRUE;
+				break;
 			}
 
 			case '0':
@@ -1944,6 +1953,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
+	/* Forget the item tester_swap restriction */
+	item_tester_swap = FALSE;
+
 	/* Make sure the equipment/inventory windows are up to date */
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
 
@@ -1996,6 +2008,9 @@ bool get_item_beside(int *cp, cptr pmt, cptr str, int sq_y, int sq_x)
 
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
+
+	/* Forget the item tester_swap restriction */
+	item_tester_swap = FALSE;
 
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
@@ -2157,9 +2172,14 @@ static void handle_command(cmd_code command_line, int item)
 			do_cmd_wield(action, args);
 			break;
 		}
+		case CMD_SWAP:
+		{
+			do_cmd_takeoff(action, args);
+			break;
+		}
 		case CMD_DROP:
 		{
-			do_cmd_drop(action, args);
+			do_cmd_swap_weapon(action, args);
 			break;
 		}
 		case CMD_STUDY_SPELL:
@@ -2258,8 +2278,10 @@ static void handle_command(cmd_code command_line, int item)
 			msg_print("invalid selection");
 			break;
 		}
-
 	}
+
+	/* We only want one at at time */
+	clear_object_in_use();
 }
 
 static void add_command(cmd_code command)
@@ -2310,6 +2332,13 @@ static void collect_commands(const object_type *o_ptr, int item)
 
 	if (mode >= MODE_EQUIPMENT)
 	{
+		if (adult_swap_weapons)
+		{
+			if ((item == INVEN_MAIN_WEAPON) || (item == INVEN_SWAP_WEAPON))
+
+			add_command(CMD_SWAP);
+			button_add("|SWAP", 'x');
+		}
 
 		/* Can take off items unless they are cursed */
 		if (obj_can_takeoff(o_ptr))
@@ -2321,14 +2350,24 @@ static void collect_commands(const object_type *o_ptr, int item)
 		/*  Check if the object can be activated and it isn't charging */
 		if (obj_can_activate(o_ptr))
 		{
-			add_command(CMD_ACTIVATE);
-			button_add("|ACTIVATE", 'A');
+			if ((!adult_swap_weapons) || (item != INVEN_SWAP_WEAPON))
+			{
+				add_command(CMD_ACTIVATE);
+				button_add("|ACTIVATE", 'A');
+			}
 		}
 	}
 
 	/* Floor and backpack */
 	else if (obj_can_wear(o_ptr))
 	{
+		/* Inscribed as a swap weapon */
+		if ((!adult_swap_weapons) && (strstr(quark_str(o_ptr->obj_note), "@x")))
+		{
+			add_command(CMD_SWAP);
+			button_add("|SWAP", 'x');
+		}
+
 		add_command(CMD_WIELD);
 		button_add("|WIELD", 'w');
 	}
@@ -2514,6 +2553,7 @@ void cmd_use_item(void)
 	/* We want to use all objects */
 	item_tester_tval = 0;
 	item_tester_hook = NULL;
+	item_tester_swap = FALSE;
 
 	/* Get item */
 	q = "Select an item.";

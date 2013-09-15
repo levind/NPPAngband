@@ -356,8 +356,10 @@ void reset_visuals(bool unused)
 	/* Graphic symbols */
 	if (use_graphics)
 	{
+		if (game_mode == GAME_NPPMORIA) process_pref_file("m_graf.prf");
+
 		/* Process "graf.prf" */
-		process_pref_file("graf.prf");
+		else process_pref_file("graf.prf");
 	}
 
 	/* Normal symbols */
@@ -814,7 +816,8 @@ s16b wield_slot(const object_type *o_ptr)
 
 		case TV_BOW:
 		{
-			return (INVEN_BOW);
+			if (adult_swap_weapons) return (INVEN_WIELD);
+			else return (INVEN_BOW);
 		}
 
 		case TV_RING:
@@ -990,22 +993,32 @@ bool slot_can_wield_item(int slot, const object_type *o_ptr)
  */
 const char *mention_use(int slot)
 {
+
+
 	switch (slot)
 	{
-		case INVEN_WIELD:
-		{
-			if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < inventory[slot].weight / 10)
-				return "Just lifting";
-			else
-				return "Wielding";
-		}
 
+		/* Also INVEN_MAIN_WEAPON and INVEN_SWAP_WEAPON */
+		case INVEN_WIELD:
 		case INVEN_BOW:
 		{
-			if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < inventory[slot].weight / 10)
-				return "Just holding";
+			object_type *o_ptr = &inventory[slot];
+			if (adult_swap_weapons)
+			{
+				if (slot == INVEN_SWAP_WEAPON) return "holding";
+			}
+
+			if (obj_is_bow(o_ptr))
+			{
+				if (p_ptr->state.heavy_shoot)	return "Just holding";
+				else return "Shooting";
+			}
 			else
-				return "Shooting";
+			{
+				/* Weapons */
+				if (p_ptr->state.heavy_wield) return "Just lifting";
+				else return "Wielding";
+			}
 		}
 
 		case INVEN_LEFT:  return "On left hand";
@@ -1045,6 +1058,25 @@ const char *mention_use(int slot)
 cptr describe_use(int i)
 {
 	cptr p;
+	object_type *o_ptr;
+
+	if ((adult_swap_weapons) && ((i == INVEN_MAIN_WEAPON) || (i == INVEN_SWAP_WEAPON)))
+	{
+		o_ptr = &inventory[i];
+		if (obj_is_bow(o_ptr))
+		{
+			if (p_ptr->state.heavy_shoot)	p = "just holding";
+			else p = "shooting missiles with";
+		}
+		else
+		{
+			if (p_ptr->state.heavy_wield)	p = "just lifting";
+			else p = "attacking monsters with";
+		}
+
+		/* Return the result */
+		return p;
+	}
 
 	switch (i)
 	{
@@ -1066,23 +1098,15 @@ cptr describe_use(int i)
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
-		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just lifting";
-		}
+		if (p_ptr->state.heavy_wield) p = "just lifting";
 	}
 
 	/* Hack -- Heavy bow */
 	if (i == INVEN_BOW)
 	{
-		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just holding";
-		}
+		if (p_ptr->state.heavy_shoot)p = "just holding";
 	}
 
 	/* Return the result */
@@ -1093,13 +1117,16 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(const object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr, int obj_num)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
 
 	/* Require an item */
 	if (!o_ptr->k_idx) return (FALSE);
+
+	/* Don't allow this choice for swap weapons */
+	if ((item_tester_swap) && (obj_num == INVEN_SWAP_WEAPON)) return (FALSE);
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
@@ -1154,7 +1181,7 @@ int scan_floor(int *items, int size, int y, int x, int mode)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Verify item tester */
-		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+		if ((mode & 0x01) && !item_tester_okay(o_ptr, this_o_idx)) continue;
 
 		/* Marked items only */
 		if ((mode & 0x02) && !o_ptr->marked) continue;
@@ -3076,7 +3103,8 @@ void acquirement(int y1, int x1, int num, bool great)
 }
 
 /*
- * Scatter some "great" objects near the player
+ * Create a pint of fine grade mush and either put
+ * it in the player's inventory or on the floor
  */
 void create_food(void)
 {
@@ -3089,17 +3117,17 @@ void create_food(void)
 	/* Wipe the object */
 	object_wipe(i_ptr);
 
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_FINE_MUSH));
 
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_MAGIC, 0);
 
-	/* First try to put it in the inventory */
-	if (put_object_in_inventory(i_ptr)) return;
-
-	/* If that fails, drop it on the floor Drop the object */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
-
+	/* Either put it in the inventory or on the floor */
+	if (inven_carry_okay(i_ptr))
+	{
+		put_object_in_inventory(i_ptr);
+	}
+	else drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 }
 
 
@@ -4337,15 +4365,10 @@ s16b inven_takeoff(int item, int amt)
 	}
 
 	/* Took off weapon */
-	if (item == INVEN_WIELD)
+	if ((item == INVEN_WIELD) || (item == INVEN_BOW))
 	{
-		act = "You were wielding";
-	}
-
-	/* Took off bow */
-	else if (item == INVEN_BOW)
-	{
-		act = "You were shooting";
+		if (obj_is_bow(o_ptr)) act = "You were shooting";
+		else act = "You were wielding";
 	}
 
 	/* Took off light */
@@ -4989,8 +5012,7 @@ void display_itemlist(void)
 		if (in_term)
 			clear_from(0);
 		Term_gotoxy(0, 0);
-		text_out_to_screen(TERM_ORANGE,
-			"Your hallucinations are too wild to see things clearly.");
+		text_out_to_screen(TERM_ORANGE, "You can't believe what you are seeing! It's like a dream!");
 		return;
 	}
 
@@ -5087,8 +5109,14 @@ void display_itemlist(void)
 	/* Note no visible items */
 	if ((!counter) && (!num_player))
 	{
+		/* Player is Blind */
+		if (p_ptr->timed[TMD_BLIND])
+		{
+			c_prt(TERM_ORANGE, "You can't see anything!", 0, 0);
+		}
+
 		/* Clear display and print note */
-		c_prt(TERM_SLATE, "You see no items.", 0, 0);
+		else c_prt(TERM_SLATE, "You see no items.", 0, 0);
 		if (!in_term)
 			Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 		/* Done */
@@ -5163,6 +5191,9 @@ void display_itemlist(void)
 		else if (object_is_worthless(o_ptr))
 			/* worthless */
 			attr = TERM_SLATE;
+		else if (!object_is_known(o_ptr))
+			/* unidentified lying object */
+			attr = TERM_L_UMBER;
 		else
 			/* default */
 			attr = TERM_WHITE;
@@ -5265,6 +5296,9 @@ void display_itemlist(void)
 		else if (object_is_worthless(o_ptr))
 			/* worthless */
 			attr = TERM_SLATE;
+		else if (!object_is_known(o_ptr))
+			/* unidentified lying object */
+			attr = TERM_L_UMBER;
 		else
 			/* default */
 			attr = TERM_WHITE;
@@ -5345,6 +5379,7 @@ bool obj_is_spellbook(const object_type *o_ptr)
 
 
 /* Basic tval testers */
+bool obj_is_shovel(const object_type *o_ptr)   { return o_ptr->tval == TV_DIGGING;}
 bool obj_is_bow(const object_type *o_ptr)   { return o_ptr->tval == TV_BOW; }
 bool obj_is_staff(const object_type *o_ptr)  { return o_ptr->tval == TV_STAFF; }
 bool obj_is_wand(const object_type *o_ptr)   { return o_ptr->tval == TV_WAND; }
@@ -5398,7 +5433,7 @@ bool chest_requires_disarming(const object_type *o_ptr)
 }
 
 
-/**
+/*
  * Determine whether an object is a weapon
  *
  * \param o_ptr is the object to check
@@ -5450,6 +5485,12 @@ bool ammo_can_fire(const object_type *o_ptr, int item)
 {
 	/* Get the "bow" (if any) */
 	object_type *j_ptr = &inventory[INVEN_BOW];
+
+	if (adult_swap_weapons)
+	{
+		j_ptr = &inventory[INVEN_MAIN_WEAPON];
+		if (!obj_is_bow(j_ptr)) return (FALSE);
+	}
 
 	/* No ammo */
 	if (!obj_is_ammo(o_ptr)) return (FALSE);
@@ -5744,7 +5785,7 @@ bool obj_can_activate(const object_type *o_ptr)
 bool get_item_okay(int item)
 {
 	/* Verify the item */
-	return (item_tester_okay(object_from_item_idx(item)));
+	return (item_tester_okay(object_from_item_idx(item), item));
 }
 
 
@@ -5816,6 +5857,8 @@ int scan_items(int *item_list, size_t item_list_max, int mode)
 	/* Forget the item_tester_tval and item_tester_hook  restrictions */
 	item_tester_tval = 0;
 	item_tester_hook = NULL;
+	item_tester_swap = FALSE;
+
 
 	return item_list_num;
 }
@@ -5834,6 +5877,7 @@ bool item_is_available(int item, bool (*tester)(const object_type *), int mode)
 
 	item_tester_hook = tester;
 	item_tester_tval = 0;
+	item_tester_swap = FALSE;
 	item_num = scan_items(item_list, N_ELEMENTS(item_list), mode);
 
 	for (i = 0; i < item_num; i++)

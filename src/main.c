@@ -88,7 +88,6 @@ static void quit_hook(cptr s)
 }
 
 
-
 /*
  * SDL needs a look-in
  */
@@ -142,7 +141,6 @@ static void init_stuff(void)
 }
 
 
-
 /*
  * Handle a "-d<what>=<path>" option
  *
@@ -160,8 +158,6 @@ static void change_path(cptr info)
 	string_free(ANGBAND_DIR_USER);
 	ANGBAND_DIR_USER = string_make(info);
 }
-
-
 
 
 #ifdef SET_UID
@@ -234,6 +230,7 @@ int main(int argc, char *argv[])
 
 	bool args = TRUE;
 
+	game_mode = 0;
 
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
@@ -335,6 +332,29 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
+			case 's':
+			case 'S':
+			{
+				if (!*arg) goto usage;
+				switch (*arg)
+				{
+					case 'm':
+					case 'M':
+					{
+						game_mode = GAME_NPPMORIA;
+						break;
+					}
+
+					case 'a':
+					case 'A':
+					{
+						game_mode = GAME_NPPANGBAND;
+						break;
+					}
+				}
+				continue;
+			}
+
 			case 'd':
 			case 'D':
 			{
@@ -358,6 +378,7 @@ int main(int argc, char *argv[])
 				puts("Usage: angband [options] [-- subopts]");
 				puts("  -n             Start a new character");
 				puts("  -L             Load a new-format save file");
+				puts("  -s<typ>        Use a particular game style: ang or mor");
 				puts("  -w             Resurrect dead character (marks savefile)");
 				puts("  -r             Rebalance monsters if monster.raw is absent");
 				puts("  -g             Request graphics mode");
@@ -375,6 +396,9 @@ int main(int argc, char *argv[])
 				/* Actually abort the process */
 				quit(NULL);
 			}
+
+			/* Compiler happiness */
+			break;
 		}
 		if (*arg) goto usage;
 	}
