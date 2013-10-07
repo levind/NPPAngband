@@ -295,8 +295,6 @@ struct object_kind
 	byte squelch;		/* Squelch setting for the particular item */
 
 	bool everseen;		/* Used to despoilify squelch menus */
-
-	u16b shop;			/* Shops that stock this object. */
 };
 
 
