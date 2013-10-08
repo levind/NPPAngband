@@ -2251,32 +2251,13 @@ static bool kind_is_armoury(int k_idx)
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->shop | SF1_ARMOR)
-				return (TRUE);
-			return(FALSE);
-		}
-
 		case TV_BOOTS:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_PAIR_OF_SOFT_LEATHER_BOOTS) return (TRUE);
-			if (k_ptr->sval == SV_PAIR_OF_HARD_LEATHER_BOOTS) return (TRUE);
-			return(FALSE);
-		}
 		case TV_GLOVES:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_SET_OF_LEATHER_GLOVES) return (TRUE);
-			if (k_ptr->sval == SV_SET_OF_GAUNTLETS) return (TRUE);
-			return(FALSE);
-		}
 		case TV_HELM:
 		{
 			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_HARD_LEATHER_CAP) return (TRUE);
-			if (k_ptr->sval == SV_IRON_HELM) return (TRUE);
+			if (k_ptr->shop & SF1_ARMOR)
+				return (TRUE);
 			return(FALSE);
 		}
 	}
