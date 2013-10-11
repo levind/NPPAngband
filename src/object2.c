@@ -2420,61 +2420,21 @@ static bool kind_is_weaponsmith(int k_idx)
 	switch (k_ptr->tval)
 	{
 		/* Weapons -- suitable  unless damaged */
-		case TV_SWORD:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_DAGGER) return (TRUE);
-			if (k_ptr->sval == SV_MAIN_GAUCHE) return (TRUE);
-			if (k_ptr->sval == SV_RAPIER) return (TRUE);
-			if (k_ptr->sval == SV_SMALL_SWORD) return (TRUE);
-			if (k_ptr->sval == SV_SHORT_SWORD) return (TRUE);
-			if (k_ptr->sval == SV_SABRE) return (TRUE);
-			if (k_ptr->sval == SV_CUTLASS) return (TRUE);
-			if (k_ptr->sval == SV_BROAD_SWORD) return (TRUE);
-			if (k_ptr->sval == SV_LONG_SWORD) return (TRUE);
-			if (k_ptr->sval == SV_SCIMITAR) return (TRUE);
-			if (k_ptr->sval == SV_KATANA) return (TRUE);
-			if (k_ptr->sval == SV_BASTARD_SWORD) return (TRUE);
-			return (FALSE);
-		}
 		case TV_HAFTED:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_WHIP) return (TRUE);
-			return (FALSE);
-		}
+		case TV_SWORD:
 		case TV_POLEARM:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_SPEAR) return (TRUE);
-			if (k_ptr->sval == SV_AWL_PIKE) return (TRUE);
-			if (k_ptr->sval == SV_TRIDENT) return (TRUE);
-			if (k_ptr->sval == SV_PIKE) return (TRUE);
-			if (k_ptr->sval == SV_BEAKED_AXE) return (TRUE);
-			if (k_ptr->sval == SV_BROAD_AXE) return (TRUE);
-			if (k_ptr->sval == SV_BATTLE_AXE) return (TRUE);
-			return (FALSE);
-		}
 		case TV_BOW:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_SLING) return (TRUE);
-			if (k_ptr->sval == SV_SHORT_BOW) return (TRUE);
-			if (k_ptr->sval == SV_LONG_BOW) return (TRUE);
-			if (k_ptr->sval == SV_LIGHT_XBOW) return (TRUE);
-			return (FALSE);
-		}
 		/*Normal ammo is sold there*/
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
 		{
 			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_AMMO_NORMAL) return (TRUE);
-			if (k_ptr->sval == SV_AMMO_LIGHT) return (TRUE);
+			if (k_ptr->shop & SF1_WEAPON)
+				return (TRUE);
+
 			return (FALSE);
 		}
-
 	}
 
 	/* Assume not suitable */
@@ -2497,43 +2457,17 @@ static bool kind_is_temple(int k_idx)
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
-		/* Hafted weapons only in the temple*/
+		/* Hafted weapons only in the temple */
 		case TV_HAFTED:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_WHIP) return (TRUE);
-			if (k_ptr->sval == SV_QUARTERSTAFF) return (TRUE);
-			if (k_ptr->sval == SV_MACE) return (TRUE);
-			if (k_ptr->sval == SV_BALL_AND_CHAIN) return (TRUE);
-			if (k_ptr->sval == SV_WAR_HAMMER) return (TRUE);
-			if (k_ptr->sval == SV_LUCERN_HAMMER) return (TRUE);
-			if (k_ptr->sval == SV_MORNING_STAR) return (TRUE);
-			if (k_ptr->sval == SV_FLAIL) return (TRUE);
-			if (k_ptr->sval == SV_LEAD_FILLED_MACE) return (TRUE);
-			return (FALSE);
-		}
-		/*scrolls suitable for the temple*/
+		/* scrolls and potions suitable for the temple */
 		case TV_SCROLL:
-		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_REMOVE_CURSE) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_BLESSING) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_HOLY_CHANT) return (TRUE);
-			return (FALSE);
-		}
 		case TV_POTION:
 		{
 			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_POTION_BOLDNESS) return (TRUE);
-			if (k_ptr->sval == SV_POTION_HEROISM) return (TRUE);
-			if (k_ptr->sval == SV_POTION_CURE_LIGHT) return (TRUE);
-			if (k_ptr->sval == SV_POTION_CURE_SERIOUS) return (TRUE);
-			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
-			if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
+			if (k_ptr->shop & SF1_TEMPLE)
+				return (TRUE);
 			return (FALSE);
 		}
-
 	}
 
 	/* Assume not suitable */
