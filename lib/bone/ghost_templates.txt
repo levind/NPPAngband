@@ -6,3 +6,12 @@
 # N: serial number : dead player ghost name 
 # I: gender : race : class : depth 
 
+N:25:Ulornen
+I:0:8:6:0
+
+N:26:Tumbrangrio
+I:0:5:0:0
+
+N:27:Ruturiangwe
+I:1:3:1:0
+

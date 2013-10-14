@@ -2904,8 +2904,8 @@ W:1:0:5:15
 P:0:0d0:0:0:0
 A:1/1
 F:EASY_KNOW
-D:It teleports you randomly up to 10 squares away. 
 S:ALCHEMIST
+D:It teleports you randomly up to 10 squares away. 
 
 
 N:276:Teleportation
@@ -2939,11 +2939,11 @@ W:5:0:5:150
 P:0:0d0:0:0:0
 A:5/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It invokes the spell of recall, which takes you from the dungeon to
 D: the town or from the town to the deepest level you have visited in
 D: the dungeon.  It takes a while for the spell to act.  Until then, the
 D: spell can be canceled by reading a second scroll. 
-S:ALCHEMIST
 
 
 N:279:Identify
@@ -2953,9 +2953,9 @@ W:1:0:5:50
 P:0:0d0:0:0:0
 A:1/1:5/1:10/1
 F:EASY_KNOW
+S:ALCHEMIST | TEMPLE
 D:It reveals all normal (magical but non-hidden) powers of one object. 
 D: (The spell may be aborted without using up the scroll.) 
-S:ALCHEMIST | TEMPLE
 
 
 N:280:*Identify*
@@ -3001,8 +3001,8 @@ W:15:0:5:125
 P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
-D:It attempts to enchant a piece of armor once. 
 S:ALCHEMIST
+D:It attempts to enchant a piece of armor once. 
 
 
 N:284:Enchant Weapon To-Hit
@@ -3012,8 +3012,8 @@ W:15:0:5:125
 P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
-D:It attempts to magically enhance a weapon's to-hit bonus once. 
 S:ALCHEMIST
+D:It attempts to magically enhance a weapon's to-hit bonus once. 
 
 
 N:285:Enchant Weapon To-Dam
@@ -3023,8 +3023,8 @@ W:15:0:5:125
 P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
-D:It attempts to magically enhance a weapon's to-dam bonus once. 
 S:ALCHEMIST
+D:It attempts to magically enhance a weapon's to-dam bonus once. 
 
 
 N:286:*Enchant Armor*
