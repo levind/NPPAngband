@@ -1384,6 +1384,7 @@ W:15:0:3:200
 P:0:0d0:0:0:0
 A:15/1
 F:SLOW_DIGEST | EASY_KNOW
+S:MAGIC_SHOP
 
 
 N:134:Resist Acid
@@ -1393,6 +1394,7 @@ W:10:0:3:300
 P:0:0d0:0:0:0
 A:10/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
+S:MAGIC_SHOP
 
 
 N:135:Searching
@@ -1420,6 +1422,7 @@ W:30:0:3:500
 P:0:0d0:0:0:0
 A:30/1
 F:CHR | SUST_CHR | HIDE_TYPE
+S:MAGIC_SHOP
 
 
 N:138:the Magi
@@ -1585,6 +1588,7 @@ W:5:0:2:200
 P:0:0d0:0:0:0
 A:5/1
 F:FEATHER | EASY_KNOW
+S:MAGIC_SHOP
 
 
 N:155:Resist Fire
@@ -1666,6 +1670,7 @@ W:10:0:2:500
 P:0:0d0:0:0:0
 A:10/1
 D:It increases your armor class. 
+S:MAGIC_SHOP
 
 
 N:164:Acid
@@ -1738,6 +1743,7 @@ W:5:0:2:250
 P:0:0d0:0:0:0
 A:5/1
 F:SEARCH | HIDE_TYPE
+S:MAGIC_SHOP
 
 
 N:172:Strength
@@ -1873,6 +1879,7 @@ I:55:4:0
 W:20:0:50:2000
 P:0:1d2:0:0:0
 A:20/1
+S:MAGIC_SHOP
 D:It teleports you randomly with a maximum range of 100 squares. 
 
 
@@ -1882,6 +1889,7 @@ I:55:5:0
 W:10:0:50:400
 P:0:1d2:0:0:0
 A:10/1
+S:MAGIC_SHOP
 D:It reveals all normal (magical but non-hidden) powers of one object. 
 D: (The spell may be aborted without using up a charge.) 
 
@@ -1903,6 +1911,7 @@ I:55:8:0
 W:5:0:50:250
 P:0:1d2:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It lights up an area with a radius of 2 squares, plus the entire room
 D: if you are currently in one.  This inflicts  4d8 points of damage on
 D: any light-sensitive creatures within the radius of the spell.
@@ -1914,6 +1923,7 @@ I:55:9:0
 W:20:0:50:750
 P:0:1d2:0:0:0
 A:20/1
+S:MAGIC_SHOP
 D:It maps out a portion of the level centered on you. 
 
 
@@ -1932,6 +1942,7 @@ I:55:11:0
 W:5:0:50:200
 P:0:1d2:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It detects all objects in the immediate area. 
 
 
@@ -1941,6 +1952,7 @@ I:55:12:0
 W:10:0:50:350
 P:0:1d2:0:0:0
 A:10/1
+S:MAGIC_SHOP
 D:It detects all traps in the immediate area. 
 
 
@@ -1950,6 +1962,7 @@ I:55:13:0
 W:10:0:50:350
 P:0:1d2:0:0:0
 A:10/1
+S:MAGIC_SHOP
 D:It detects all doors and stairs in the immediate area. 
 
 
@@ -1959,6 +1972,7 @@ I:55:14:0
 W:5:0:50:200
 P:0:1d2:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It detects all invisible monsters in the immediate area. 
 
 
@@ -1968,6 +1982,7 @@ I:55:15:0
 W:20:0:50:350
 P:0:1d2:0:0:0
 A:20/1
+S:MAGIC_SHOP
 D:It detects all evil monsters in the immediate area. 
 
 
@@ -2025,6 +2040,7 @@ I:55:21:0
 W:10:0:50:800
 P:0:1d2:0:0:0
 A:10/1
+S:MAGIC_SHOP
 D:It attempts to slow down all monsters within line of sight.
 
 
@@ -2210,6 +2226,7 @@ I:65:8:0
 W:5:0:10:500
 P:0:1d1:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It attempts to put a single monster to sleep.
 
 
@@ -2219,6 +2236,7 @@ I:65:9:0
 W:5:0:10:500
 P:0:1d1:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It attempts to slow down a single monster.
 
 
@@ -2228,6 +2246,7 @@ I:65:10:0
 W:5:0:10:500
 P:0:1d1:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It attempts to confuse a single monster.
 
 
@@ -2265,6 +2284,7 @@ I:65:14:0
 W:5:0:10:400
 P:0:1d1:0:0:0
 A:5/1
+S:MAGIC_SHOP
 D:It shoots a radius-2 poison cloud that inflicts 12 points of damage at
 D: its center. 
 
@@ -2275,6 +2295,7 @@ I:65:15:0
 W:3:0:10:200
 P:0:1d1:0:0:0
 A:3/1
+S:MAGIC_SHOP
 D:It fires a magic missile that inflicts 3d4 points of damage, with a
 D: 20 percent chance of getting a magic beam. 
 
@@ -2370,6 +2391,7 @@ W:3:0:10:250
 P:0:1d1:0:0:0
 A:3/1
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+S:MAGIC_SHOP
 D:It has a random effect chosen from the various wand effects, except
 D: Dragon's Flame, Dragon's Frost, Dragon's Breath, Annihilation.
 
@@ -2836,6 +2858,7 @@ P:0:0d0:0:0:0
 A:1/1
 F:EASY_KNOW
 D:It teleports you randomly up to 10 squares away. 
+S:ALCHEMIST
 
 
 N:276:Teleportation
@@ -2873,6 +2896,7 @@ D:It invokes the spell of recall, which takes you from the dungeon to
 D: the town or from the town to the deepest level you have visited in
 D: the dungeon.  It takes a while for the spell to act.  Until then, the
 D: spell can be canceled by reading a second scroll. 
+S:ALCHEMIST
 
 
 N:279:Identify
@@ -2884,6 +2908,7 @@ A:1/1:5/1:10/1
 F:EASY_KNOW
 D:It reveals all normal (magical but non-hidden) powers of one object. 
 D: (The spell may be aborted without using up the scroll.) 
+S:ALCHEMIST | TEMPLE
 
 
 N:280:*Identify*
@@ -2906,6 +2931,7 @@ W:10:0:5:100
 P:0:0d0:0:0:0
 A:10/1
 F:EASY_KNOW
+S:TEMPLE
 D:It removes all ordinary curses from all equipped items.  Heavy or
 D: permanent curses are unaffected. 
 
@@ -2929,6 +2955,7 @@ P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
 D:It attempts to enchant a piece of armor once. 
+S:ALCHEMIST
 
 
 N:284:Enchant Weapon To-Hit
@@ -2939,6 +2966,7 @@ P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
 D:It attempts to magically enhance a weapon's to-hit bonus once. 
+S:ALCHEMIST
 
 
 N:285:Enchant Weapon To-Dam
@@ -2949,6 +2977,7 @@ P:0:0d0:0:0:0
 A:15/1
 F:EASY_KNOW
 D:It attempts to magically enhance a weapon's to-dam bonus once. 
+S:ALCHEMIST
 
 
 N:286:*Enchant Armor*
@@ -2979,6 +3008,7 @@ W:40:0:5:200
 P:0:0d0:0:0:0
 A:40/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It recharges a wand, staff, or rod.  If successful, a wand or staff
 D: gains 2+1d(60/((level of wand/staff)+2)+1) charges; failure occurs 1
 D: time in (160-(level of wand/staff)-(10*(# of charges)))/15, and can
@@ -3014,6 +3044,7 @@ F:EASY_KNOW
 D:It lights up an area with a radius of 2 squares, plus the entire room
 D: if you are currently in one.  This inflicts 2d8 points of damage on
 D: any light-sensitive creatures within the radius of the spell. 
+S:ALCHEMIST
 
 
 N:291:Magic Mapping
@@ -3024,6 +3055,7 @@ P:0:0d0:0:0:0
 A:5/1
 F:EASY_KNOW
 D:It maps out a portion of the level centered on you. 
+S:ALCHEMIST
 
 
 N:292:Treasure Detection
@@ -3034,6 +3066,7 @@ P:0:0d0:0:0:0
 A:0/1
 F:EASY_KNOW
 D:It detects all treasure in the immediate area. 
+S:ALCHEMIST
 
 
 N:293:Object Detection
@@ -3044,6 +3077,7 @@ P:0:0d0:0:0:0
 A:0/1
 F:EASY_KNOW
 D:It detects all objects in the immediate area. 
+S:ALCHEMIST
 
 
 N:294:Trap Detection
@@ -3054,6 +3088,7 @@ P:0:0d0:0:0:0
 A:5/1:10/1
 F:EASY_KNOW
 D:It detects all traps in the immediate area.
+S:ALCHEMIST
 
 
 N:295:Door/Stair Location
@@ -3064,6 +3099,7 @@ P:0:0d0:0:0:0
 A:5/1:10/1:15/1
 F:EASY_KNOW
 D:It detects all stairs and doors in the immediate area. 
+S:ALCHEMIST
 
 
 N:296:Detect Invisible
@@ -3074,6 +3110,7 @@ P:0:0d0:0:0:0
 A:1/1
 F:EASY_KNOW
 D:It detects all invisible monsters in the immediate area. 
+S:ALCHEMIST
 
 
 N:297:Satisfy Hunger
@@ -3085,6 +3122,7 @@ A:5/1
 F:EASY_KNOW
 D:It magically renders you well-fed (but not satiated).  This will also
 D: cure a bloated stomach. 
+S:ALCHEMIST
 
 
 N:298:Blessing
@@ -3094,6 +3132,7 @@ W:1:0:5:15
 P:0:0d0:0:0:0
 A:1/1
 F:EASY_KNOW
+S:TEMPLE
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
 D: 6+1d12 turns. 
 
@@ -3105,6 +3144,7 @@ W:10:0:5:40
 P:0:0d0:0:0:0
 A:10/1
 F:EASY_KNOW
+S:TEMPLE
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
 D: 12+1d24 turns. 
 
@@ -3130,6 +3170,7 @@ F:EASY_KNOW
 D:It enchants you with an aura of confusion that causes your hands to
 D: glow red.  The enchantment is dissipated when you strike a monster;
 D: at that moment an attempt is made to confuse the monster. 
+S:ALCHEMIST
 
 
 N:302:Protection from Evil
@@ -3525,6 +3566,7 @@ W:1:0:4:10
 P:0:1d1:0:0:0
 A:1/1
 F:EASY_KNOW
+S:TEMPLE
 D:It removes fear. 
 
 
@@ -3547,6 +3589,7 @@ W:1:0:4:30
 P:0:1d1:0:0:0
 A:1/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It grants you temporary resistance to fire for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
@@ -3560,6 +3603,7 @@ W:1:0:4:30
 P:0:1d1:0:0:0
 A:1/1
 F:IGNORE_COLD | EASY_KNOW
+S:ALCHEMIST
 D:It grants you temporary resistance to cold for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
@@ -3573,6 +3617,7 @@ W:1:0:4:35
 P:0:1d1:0:0:0
 A:1/1
 F:EASY_KNOW
+S:TEMPLE
 D:It cures 10 points of damage, removes fear and grants you heroism
 D: (resistance to fear, and a bonus of +12 to-hit) for 25+1d25 turns. 
 
@@ -3596,6 +3641,7 @@ W:0:0:4:20
 P:0:1d1:0:0:0
 A:0/1:1/1:3/1
 F:EASY_KNOW
+S:TEMPLE
 D:It cures 3d8 points of damage, heals 10 points worth of cuts, and
 D: cures blindness.  It also provides nourishment for about 25 turns
 D: under normal conditions. 
@@ -3608,6 +3654,7 @@ W:3:0:4:45
 P:0:1d1:0:0:0
 A:4/1
 F:EASY_KNOW
+S:TEMPLE
 D:It cures 5d10 points of damage, heals half of all cut damage plus
 D: another 50 points, and cures blindness and confusion.  It also
 D: provides nourishment for about 50 turns under normal conditions. 
@@ -3620,6 +3667,7 @@ W:5:0:4:115
 P:0:1d1:0:0:0
 A:8/1
 F:EASY_KNOW
+S:TEMPLE
 D:It cures 8d10 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion.  It
 D: also provides nourishment for about 50 turns under normal conditions. 
@@ -3679,6 +3727,7 @@ W:40:0:4:400
 P:0:1d1:0:0:0
 A:40/1
 F:EASY_KNOW
+S:TEMPLE
 D:It restores experience to maximum if it is currently below maximum. 
 
 
@@ -3689,6 +3738,7 @@ W:25:0:4:300
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores strength to maximum if it is currently below maximum. 
 
 
@@ -3699,6 +3749,7 @@ W:25:0:4:300
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores intelligence to maximum if it is currently below maximum. 
 
 
@@ -3709,6 +3760,7 @@ W:25:0:4:300
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores wisdom to maximum if it is currently below maximum. 
 
 
@@ -3719,6 +3771,7 @@ W:25:0:4:300
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores dexterity to maximum if it is currently below maximum. 
 
 
@@ -3729,6 +3782,7 @@ W:25:0:4:300
 P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores constution to maximum if it is currently below maximum. 
 
 
@@ -3739,6 +3793,7 @@ W:20:0:4:300
 P:0:1d1:0:0:0
 A:20/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It restores charisma to maximum if it is currently below maximum. 
 
 
@@ -3871,6 +3926,7 @@ W:15:0:4:80
 P:0:1d1:0:0:0
 A:15/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It grants you temporary resistance to acid for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
@@ -3884,6 +3940,7 @@ W:15:0:4:80
 P:0:1d1:0:0:0
 A:15/1
 F:EASY_KNOW
+S:ALCHEMIST
 D:It grants you temporary resistance to electricity for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
 D: of your equipped items provides that.  The duration is cumulative
@@ -4228,6 +4285,7 @@ W:0:0:10:3
 P:0:0d0:0:0:0
 A:0/1:5/1:10/1
 F:EASY_KNOW
+S:GENERAL_STORE
 D:It provides nourishment for about 2500 turns under normal conditions. 
 
 
@@ -4259,6 +4317,7 @@ W:1:0:10:3
 P:0:2d6:0:0:0
 A:1/1
 F:EASY_KNOW
+S:GENERAL_STORE
 D:It can be used to fuel a brass lantern with 7500 turns of light, up to
 D: a maximum of 15000 turns of light.  When thrown, it is considered
 D: lit, so it does more than nominal damage (which occurs even against
@@ -4275,6 +4334,7 @@ W:1:0:10:1
 P:0:1d1:0:0:0
 A:1/1
 F:EASY_KNOW
+S:GENERAL_STORE
 D:These can be placed in doors to make them harder to open.  Multiple
 D: spikes may be used on a single door.  Each of the first 7 spikes will
 D: increase the door's resistance to bashing.  Placing more than 7
@@ -4419,6 +4479,7 @@ I:90:0:0
 W:5:0:30:25
 P:0:1d1:0:0:0
 A:5/1
+S:BOOKSHOP
 F:EASY_KNOW
 
 
@@ -4428,6 +4489,7 @@ I:90:1:0
 W:10:0:30:100
 P:0:1d1:0:0:0
 A:10/1
+S:BOOKSHOP
 F:EASY_KNOW
 
 
@@ -4437,6 +4499,7 @@ I:90:2:0
 W:20:0:30:400
 P:0:1d1:0:0:0
 A:20/1
+S:BOOKSHOP
 F:EASY_KNOW
 
 
@@ -4446,6 +4509,7 @@ I:90:3:0
 W:30:0:30:800
 P:0:1d1:0:0:0
 A:30/1
+S:BOOKSHOP
 F:EASY_KNOW
 
 
@@ -4505,6 +4569,7 @@ W:5:0:30:25
 P:0:1d1:0:0:0
 A:5/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:432:[Words of Wisdom]
@@ -4514,6 +4579,7 @@ W:10:0:30:100
 P:0:1d1:0:0:0
 A:10/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:433:[Chants and Blessings]
@@ -4523,6 +4589,7 @@ W:20:0:30:300
 P:0:1d1:0:0:0
 A:20/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:434:[Exorcism and Dispelling]
@@ -4532,6 +4599,7 @@ W:30:0:30:900
 P:0:1d1:0:0:0
 A:30/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:435:[Ethereal Openings]
@@ -4631,6 +4699,7 @@ W:5:0:30:25
 P:0:1d1:0:0:0
 A:5/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:445:[Environmental Adjurations]
@@ -4640,6 +4709,7 @@ W:10:0:30:100
 P:0:1d1:0:0:0
 A:10/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:446:[Commanding Nature]
@@ -4649,6 +4719,7 @@ W:20:0:30:300
 P:0:1d1:0:0:0
 A:20/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:447:[Lore of Engagement]
@@ -4658,6 +4729,7 @@ W:30:0:30:900
 P:0:1d1:0:0:0
 A:30/1
 F:EASY_KNOW
+S:BOOKSHOP
 
 
 N:448:[Radagast's Protections]
