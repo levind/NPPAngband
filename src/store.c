@@ -2140,9 +2140,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 	if (game_mode == GAME_NPPMORIA)
 	{
 		if ((store_num == STORE_TEMPLE) && (o_ptr->tval == TV_PRAYER_BOOK)) return (TRUE);
-		if ((store_num == STORE_MAGIC) &&
-				(o_ptr->tval == TV_MAGIC_BOOK || o_ptr->tval == TV_SCROLL ||
-				o_ptr->tval == TV_POTION))  return (TRUE);
+		if ((store_num == STORE_MAGIC) &&  (o_ptr->tval == TV_MAGIC_BOOK)) 	return (TRUE);
 	}
 
 	/* Switch on the store */
@@ -2264,6 +2262,8 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 				case TV_STAFF:
 				case TV_WAND:
 				case TV_ROD:
+				case TV_SCROLL:
+				case TV_POTION:
 				break;
 				default:
 				return (FALSE);
