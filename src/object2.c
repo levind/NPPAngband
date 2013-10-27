@@ -2250,15 +2250,34 @@ static bool kind_is_armoury(int k_idx)
 	{
 		/* Armor -- Good unless damaged */
 		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		case TV_SHIELD:
 		{
 			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->shop | SF1_ARMOR)
-				return (TRUE);
+			if (k_ptr->sval == SV_METAL_SCALE_MAIL) return (TRUE);
+			if (k_ptr->sval == SV_CHAIN_MAIL) return (TRUE);
+			if (k_ptr->sval == SV_AUGMENTED_CHAIN_MAIL) return (TRUE);
+			if (k_ptr->sval == SV_DOUBLE_CHAIN_MAIL) return (TRUE);
+			if (k_ptr->sval == SV_METAL_BRIGANDINE_ARMOUR) return (TRUE);
+			return(FALSE);
+
+		}
+		case TV_SOFT_ARMOR:
+		{
+			if (allow_altered_inventory) return (TRUE);
+			if (k_ptr->sval == SV_ROBE) return (TRUE);
+			if (k_ptr->sval == SV_SOFT_LEATHER_ARMOR) return (TRUE);
+			if (k_ptr->sval == SV_HARD_LEATHER_ARMOR) return (TRUE);
+			if (k_ptr->sval == SV_HARD_STUDDED_LEATHER) return (TRUE);
+			if (k_ptr->sval == SV_LEATHER_SCALE_MAIL) return (TRUE);
 			return(FALSE);
 		}
 
+		case TV_SHIELD:
+		{
+			if (allow_altered_inventory) return (TRUE);
+			if (k_ptr->sval == SV_SMALL_LEATHER_SHIELD) return (TRUE);
+			if (k_ptr->sval == SV_SMALL_METAL_SHIELD) return (TRUE);
+			return(FALSE);
+		}
 		case TV_BOOTS:
 		{
 			if (allow_altered_inventory) return (TRUE);

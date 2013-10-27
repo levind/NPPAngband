@@ -33,22 +33,6 @@
 #define STORE_BOOKSHOP	9
 
 
-/*
- * Store bit definitions (see "store.c", etc)
- */
-#define SF1_GENERAL		0x00000001
-#define SF1_ARMOR		0x00000002
-#define SF1_WEAPON		0x00000004
-#define SF1_TEMPLE		0x00000008
-#define SF1_ALCHEMY		0x00000010
-#define SF1_MAGIC		0x00000020
-#define SF1_B_MARKET	0x00000040
-/* Home is not valid for stock objects */
-#define SF1_HOME		0x00000080
-/* Guild is not valid for stock objects */
-#define SF1_GUILD		0x00000100
-#define SF1_BOOKSHOP	0x00000200
-
 /*** Types ***/
 
 /*

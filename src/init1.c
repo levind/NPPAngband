@@ -152,13 +152,12 @@ struct flag_name
 #define FF1 13
 #define FF2 14
 #define FF3 15
-#define SF1 16
-#define MAX_FLAG_SETS	17
+#define MAX_FLAG_SETS	16
 
 
 
 /*
- * Name to bit flags lookup
+ * Monster race flags for the race_info_flags1 structure
  */
 static flag_name info_flags[] =
 {
@@ -786,19 +785,8 @@ static flag_name info_flags[] =
 	{"CFXXX29",  CF1, CF_CFXXX29},
 	{"CFXXX30",  CF1, CF_CFXXX30},
 	{"CFXXX31",  CF1, CF_CFXXX31},
-	{"CFXXX32",  CF1, CF_CFXXX32},
+	{"CFXXX32",  CF1, CF_CFXXX32}
 
-	/* Shop flags */
-	{ "GENERAL_STORE",	SF1, SF1_GENERAL },
-	{ "ARMORY",			SF1, SF1_ARMOR },
-	{ "WEAPONSMITH",	SF1, SF1_WEAPON },
-	{ "TEMPLE",			SF1, SF1_TEMPLE },
-	{ "ALCHEMIST",		SF1, SF1_ALCHEMY },
-	{ "MAGIC_SHOP",		SF1, SF1_MAGIC },
-	{ "BLACK_MARKET",	SF1, SF1_B_MARKET },
-	{ "HOME",			SF1, SF1_HOME },
-	{ "GUILD",			SF1, SF1_GUILD },
-	{ "BOOKSHOP",		SF1, SF1_BOOKSHOP }
 };
 
 
@@ -866,7 +854,6 @@ static cptr a_info_act[ACT_MAX] =
 	"RES_FIRE",
 	"RES_COLD",
 	"RES_POIS"
-
 };
 
 
@@ -1376,16 +1363,14 @@ void get_feature_name(char *desc, size_t max, byte feature_num)
 static errr grab_one_flag(u32b **flag, cptr errstr, cptr what)
 {
 	u16b i;
-	u16b elements = N_ELEMENTS(info_flags);
 
 	/* Check flags */
-	for (i = 0; i < elements; i++)
+	for (i = 0; i < N_ELEMENTS(info_flags); i++)
 	{
 		flag_name *f_ptr = info_flags+i;
 
 		if (!flag[f_ptr->set]) continue;
 
-		/* found a match */
 		if (streq(what, f_ptr->name))
 		{
 			*(flag[f_ptr->set]) |= f_ptr->flag;
@@ -1780,18 +1765,6 @@ static errr grab_one_kind_flag(object_kind *ptr, cptr what)
 	return grab_one_flag(f, "object", what);
 }
 
-/*
- * Grab one shop bit in an object_kind from a textual string
- */
-static errr grab_one_kind_shop(object_kind *ptr, cptr what)
-{
-	u32b *f[MAX_FLAG_SETS];
-	C_WIPE(f, MAX_FLAG_SETS, u32b);
-	f[SF1] = &(ptr->shop);
-	return grab_one_flag(f, "object shop", what);
-}
-
-
 
 
 
@@ -1996,33 +1969,6 @@ errr parse_k_info(char *buf, header *head)
 
 			/* Parse this entry */
 			if (0 != grab_one_kind_flag(k_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
-
-			/* Start the next entry */
-			s = t;
-		}
-	}
-
-	/* Process 'S' for shop stock */
-	else if (buf[0] == 'S')
-	{
-		/* There better be a current k_ptr */
-		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry textually */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while (*t == ' ' || *t == '|') t++;
-			}
-
-			/* Parse this entry */
-			if (0 != grab_one_kind_shop(k_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
 			s = t;
