@@ -1,5 +1,11 @@
 aclocal.m4
+angband.res
 autom4te.cache/
 config.log
 config.status
 configure
+lib/apex/
+lib/bone/
+lib/save/
+nppangband.INI
+*.exe
