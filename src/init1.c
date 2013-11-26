@@ -2014,6 +2014,30 @@ errr parse_k_info(char *buf, header *head)
 		}
 	}
 
+	/* Process 'E' for "Effects" */
+	else if (buf[0] == 'E')
+	{
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
