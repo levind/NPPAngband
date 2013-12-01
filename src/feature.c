@@ -2950,38 +2950,15 @@ static void describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
 		return;
 	}
 
-	if (f_idx == FEAT_GEYSER)
+	/* Text from file. */
+	if(f_ptr->f_desc)
 	{
-		text_out("  The geyser can explode in a burst of boiling water!");
+		char *desc;
+		/* Get the name */
+		desc = f_text + f_info[f_idx].f_desc;
 
-		/* Done */
-		return;
-	}
-
-	if (f_idx == FEAT_FSOIL_DYNAMIC)
-	{
-		text_out("  This feature can slowly spread across the dungeon.");
-
-		/* Done */
-		return;
-	}
-
-	/* Sniper flowers */
-	if (f_idx == FEAT_PUTRID_FLOWER)
-	{
-		text_out("  This flower can fire spikes or spit poison at you.");
-
-		/* Done */
-		return;
-	}
-
-	/* Silent watchers */
-	if (f_idx == FEAT_SILENT_WATCHER)
-	{
-		text_out("  The silent watcher can aggravate nearly monsters.");
-
-		/* Done */
-		return;
+		text_out("  ");
+		text_out(desc);
 	}
 
 	/* Dynamic lava can spread fire */
