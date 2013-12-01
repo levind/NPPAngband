@@ -64,7 +64,7 @@
 # y2 - Gold
 #       
 
-# Effects do not use the C ow W lines.  They use the one line below:
+# Effects do not use the C or W lines.  They use the one line below:
 # X: depth : rarity : power : damage: gf type : timeout set : timeout rand
 #
 # depth and rarity are the same as the W line
@@ -93,6 +93,10 @@
 
 # Change chance is optional. Its values are specific to the transition.
 
+# D: description describes actions taken by the feature or when the feature
+# changes into another feature.
+
+# T: the description when the feature is looked at.
 
 # Version stamp (required)
 
@@ -966,7 +970,6 @@ F:NOTICE | REMEMBER | CAN_TUNNEL | WALL | GLOW
 F:ATTR_LIGHT | HURT_ROCK | HURT_COLD | HURT_WATER | FIRE
 F:DYNAMIC
 
-
 N:83:loose rock
 G:;:W
 W:6:2:15:0
@@ -1567,7 +1570,7 @@ K:HURT_COLD:85:15000
 F:PROJECT | MOVE | PLACE | NOTICE | BRIDGE
 F:COVERED | ATTR_LIGHT | DEEP | HURT_COLD | LAVA
 F:WATER | DYNAMIC
-
+T:The geyser can explode in a burst of boiling water!
 
 N:138:cracked wall over lava
 G:%:r1
@@ -2042,6 +2045,7 @@ K:HURT_FIRE:113:50
 F:LOS | PROJECT | MOVE | PLACE | DROP
 F:NOTICE | RUN | BRIDGE | ATTR_LIGHT | HURT_FIRE
 F:CAN_FLY | FOREST | DYNAMIC
+T:This feature can slowly spread across the dungeon.
 
 
 N:191:~drain life
@@ -2061,7 +2065,8 @@ N:193:strange inscription
 G:*:v
 X:1:1:0:0:1:0:0
 F:NOTICE | ATTR_LIGHT | EFFECT
-
+T:This wall can cast a spell at the player,
+T: or reveal some useful information about the current dungeon level.
 
 N:194:putrid flower
 G:;:w
@@ -2073,6 +2078,7 @@ F:LOS | PROJECT | MOVE | PLACE | SECRET
 F:NOTICE | BRIDGE | ATTR_LIGHT | HURT_FIRE | CAN_FLY
 F:FOREST | DYNAMIC
 D:The putrid flower was destroyed!
+T:This flower can fire spikes or spit poison at you.
 
 
 N:195:tree branch covered with snow
@@ -2145,6 +2151,7 @@ K:DEFAULT:1
 K:TREE:201:40
 F:NOTICE | REMEMBER | CAN_TUNNEL | WALL | GLOW
 F:ATTR_LIGHT | HURT_ROCK | DYNAMIC
+T:The silent watcher can aggravate nearby monsters.
 
 
 N:202:ethereal wall
@@ -2156,7 +2163,7 @@ K:TREE:202:40
 K:HURT_FIRE:198:500
 F:NOTICE | REMEMBER | CAN_TUNNEL | WALL | GLOW
 F:ATTR_LIGHT | HURT_ROCK | HURT_FIRE
-
+T:This wall can teleport you across the dungeon, or explode in a burst of light.
 
 N:203:shard cloud
 G:*:u

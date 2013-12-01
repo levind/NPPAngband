@@ -1776,6 +1776,20 @@ errr parse_f_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
+	/* Process 'T' for "Text" */
+	else if (buf[0] == 'T')
+	{
+		/* There better be a current f_ptr */
+		if (!f_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&f_ptr->f_desc, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */

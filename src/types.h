@@ -151,6 +151,7 @@ struct feature_type
 {
 	u32b name;			/* Name (offset) */
 	u32b f_text;			/* Text (offset) */
+	u32b f_desc;		/* Description (offset) */
 
 	u16b f_mimic;	/* Feature to mimic */
 
